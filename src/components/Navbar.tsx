@@ -9,7 +9,7 @@ export function Navbar() {
 			<Link href="/" className="brand">
 				<img src="/img/logo.png" alt="Logo" />
 				<div className="brand-text">
-					<span className="brand-name">JTRONIX</span>
+					<span className="brand-name">Petronix</span>
 					<span className="brand-sub">Technologies</span>
 				</div>
 			</Link>

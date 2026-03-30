@@ -54,10 +54,10 @@ export default function ProductDetailPage() {
   }, [productId]);
 
   const telegramHref = product
-    ? `https://t.me/jtronix_admin?text=Salom,%20men%20${encodeURIComponent(
+    ? `https://t.me/Petronix_admin?text=Salom,%20men%20${encodeURIComponent(
         product.name
       )}%20haqida%20ma'lumot%20olmoqchiman`
-    : "https://t.me/jtronix_admin";
+    : "https://t.me/Petronix_admin";
 
   return (
     <>

@@ -68,7 +68,7 @@ function ProductCard({ product, onClick }: ProductCardProps) {
 						// handle inquiry
 					}}
 				>
-					So'rov yuborish
+					Buyurtma berish
 				</button>
 			</div>
 		</div>

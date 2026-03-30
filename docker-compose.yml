@@ -1,0 +1,29 @@
+# docker-compose.yml
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: Petronix_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: adminsecret
+      POSTGRES_DB: Petronix_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    container_name: Petronix_app
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql://postgres:adminsecret@db:5432/Petronix_db"
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-	title: "JTRONIX TECHNOLOGIES",
+	title: "Petronix TECHNOLOGIES",
 	icons: {
 		icon: "/favicon.png",
 	},

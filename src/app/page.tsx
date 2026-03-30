@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image"; // Опционально: можно заменить <img> на <Image> для оптимизации
 import { Navbar } from "@/components/Navbar";
+import { ApplicationForm } from "@/components/ApplicationForm";
 
 export default function Home() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,7 +20,7 @@ export default function Home() {
 
 				<div className="hero-content">
 					<img src="/img/compressor.png" className="hero-img" alt="Compressor" />
-					<h1>JTRONIX CNG SOLUTIONS</h1>
+					<h1>Petronix CNG SOLUTIONS</h1>
 					<p>Metan (CNG) zapravka stansiyalari uchun professional yechimlar</p>
 					<a href="#contacts" className="btn">📞 Bog‘lanish</a>
 				</div>
@@ -39,7 +40,7 @@ export default function Home() {
 					<div className="about-left">
 						<h2>Kompaniya haqida</h2>
 						<p>
-							JTRONIX — metan (CNG) zapravka stansiyalari uchun sanoat uskunalari
+							Petronix — metan (CNG) zapravka stansiyalari uchun sanoat uskunalari
 							va butlovchi qismlar yetkazib beruvchi kompaniya. Biz kompressorlar,
 							filtratsiya tizimlari, ehtiyot qismlar va CNG obyektlarini qurish,
 							modernizatsiya qilish hamda xizmat ko‘rsatish uchun texnik yechimlar
@@ -153,17 +154,23 @@ export default function Home() {
 				</p>
 				<div className="projects-grid">
 					<div className="project-card">
-						<div className="project-image"></div>
+						<div className="project-image">
+							<img src="/img/1.png" alt="project-image" />
+						</div>
 						<h3>CNG stansiyasini modernizatsiya qilish</h3>
 						<p>Kompressor uskunalari va filtrlash tizimlarini yetkazib berish.</p>
 					</div>
 					<div className="project-card">
-						<div className="project-image"></div>
+						<div className="project-image">
+							<img src="/img/2.png" alt="project-image" />
+						</div>
 						<h3>Yangi stansiya qurilishi</h3>
 						<p>Ishga tushirish uchun kompleks uskunalar va texnik yordam.</p>
 					</div>
 					<div className="project-card">
-						<div className="project-image"></div>
+						<div className="project-image">
+							<img src="/img/3.png" alt="project-image" />
+						</div>
 						<h3>Servis xizmati</h3>
 						<p>Diagnostika va operatsion ob'ekt uchun komponentlarni etkazib berish.</p>
 					</div>
@@ -177,12 +184,8 @@ export default function Home() {
 						24 soat ichida individual tijorat taklifi va texnik hisob-kitob tayyorlaymiz.
 					</p>
 
-					<form className="cta-form" onSubmit={(e) => e.preventDefault()}>
-						<input type="text" placeholder="Ismingiz" required />
-						<input type="tel" placeholder="Telefon" required />
-						<input type="email" placeholder="Email" required />
-						<button type="submit">Tijorat taklifini olish</button>
-					</form>
+					<ApplicationForm />
+
 					<div className="cta-trust">
 						<div>⚡ 24 soat ichida javob</div>
 						<div>🔒 Maxfiylik kafolatlanadi</div>
@@ -223,19 +226,19 @@ export default function Home() {
 						<h3>Biz bilan bog‘laning</h3>
 						<br />
 						<p><strong>Telefon:</strong> +998 98 011 33 44</p>
-						<p><strong>Email:</strong> info@jtronix.uz</p>
-						<p><strong>Manzil:</strong> Ташкент, Узбекистан</p>
-						<a href="https://t.me/jtronix_admin" target="_blank" rel="noreferrer" className="contact-btn">
+						<p><strong>Email:</strong> petronixtechnologies@gmail.com</p>
+						<p><strong>Manzil:</strong> Toshkent shahri, Sergeli tumani, Sultonobod mahallasi, 272A</p>
+						<a href="https://t.me/Petronix_admin" target="_blank" rel="noreferrer" className="contact-btn">
 							💬 Telegram orqali yozish
 						</a>
 
 						<div className="social-links">
-							<a href="https://t.me/jtronix_technologies" target="_blank" rel="noreferrer" className="social-icon">
+							<a href="https://t.me/petronix_technologies" target="_blank" rel="noreferrer" className="social-icon">
 								<svg viewBox="0 0 24 24" fill="none">
 									<path d="M21 3L3 10.5L10.5 13.5L13.5 21L21 3Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
 								</svg>
 							</a>
-							<a href="https://instagram.com/jtronix_technologies" target="_blank" rel="noreferrer" className="social-icon">
+							<a href="https://instagram.com/petronix_technologies" target="_blank" rel="noreferrer" className="social-icon">
 								<svg viewBox="0 0 24 24" fill="none">
 									<rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="2" />
 									<circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
@@ -261,7 +264,7 @@ export default function Home() {
 			<footer className="footer">
 				<div className="footer-container">
 					<div className="footer-brand">
-						<img src="/img/logo.png" alt="JTRONIX Logo" />
+						<img src="/img/logo.png" alt="Petronix Logo" />
 						<p>
 							CNG stansiyalari uchun uskunalar va butlovchi qismlar yetkazib
 							beruvchi kompaniya. Gaz to‘ldirish infratuzilmasini qurish va
@@ -278,18 +281,18 @@ export default function Home() {
 					</div>
 
 					<div className="footer-contacts">
-						<h4>Контакты</h4>
-						<p>📍 Ташкент, Узбекистан</p>
+						<h4>Kontaktlar</h4>
+						<p>📍 Toshkent shahri, Sergeli tumani, Sultonobod mahallasi, 272A</p>
 						<p>📞 +998 98 011 33 44</p>
-						<p>✉ info@jtronix.uz</p>
+						<p>✉ petronixtechnologies@gmail.com</p>
 
 						<div className="footer-socials">
-							<a href="https://t.me/jtronix_technologies" target="_blank" rel="noreferrer" className="social-icon">
+							<a href="https://t.me/petronix_technologies" target="_blank" rel="noreferrer" className="social-icon">
 								<svg viewBox="0 0 24 24">
 									<path d="M21 3L3 10.5L10.5 13.5L13.5 21L21 3Z" stroke="currentColor" strokeWidth="2" fill="none" />
 								</svg>
 							</a>
-							<a href="https://instagram.com/jtronix_technologies" target="_blank" rel="noreferrer" className="social-icon">
+							<a href="https://instagram.com/petronix_technologies" target="_blank" rel="noreferrer" className="social-icon">
 								<svg viewBox="0 0 24 24">
 									<rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="2" fill="none" />
 									<circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" fill="none" />
@@ -300,7 +303,7 @@ export default function Home() {
 					</div>
 				</div>
 				<div className="footer-bottom">
-					© 2026 JTRONIX Technologies. Barcha huquqlar himoyalangan.
+					© 2026 Petronix Technologies. Barcha huquqlar himoyalangan.
 				</div>
 			</footer>
 		</>
