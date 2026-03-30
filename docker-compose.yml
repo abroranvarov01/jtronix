@@ -1,6 +1,5 @@
 # docker-compose.yml
 services:
-
   db:
     image: postgres:16-alpine
     container_name: Petronix_db
@@ -22,6 +21,8 @@ services:
       - db
     environment:
       DATABASE_URL: "postgresql://postgres:adminsecret@db:5432/Petronix_db"
+      TELEGRAM_BOT_TOKEN: "8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk"
+      TELEGRAM_CHAT_ID: "-4912475701"
     ports:
       - "3000:3000"
 

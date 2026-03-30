@@ -6,7 +6,7 @@ const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET ?? "change-this-secret-in-env"
 );
 
-const COOKIE_NAME = "jtronix_token";
+const COOKIE_NAME = "Petronix_token";
 const MAX_AGE = 60 * 60 * 8; // 8 soat
 
 /* ── Token yaratish ─────────────────────────────────────── */
