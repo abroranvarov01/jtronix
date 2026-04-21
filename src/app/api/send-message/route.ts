@@ -9,7 +9,7 @@ export async function POST(request: Request) {
         const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
         const text = `
-🚀 *Новая заявка (через Backend)*
+🚀 *Новая заявка*
 👤 *Имя:* ${name}
 📞 *Телефон:* ${phone}
 📧 *Email:* ${email}

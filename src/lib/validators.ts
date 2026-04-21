@@ -2,14 +2,48 @@
 import { z } from "zod";
 
 export const ProductSchema = z.object({
-  name: z.string().min(1, "Nom majburiy").max(200),
-  description: z.string().max(1000).optional().default(""),
+  name: z.string().min(1, "Nom majburiy"),
+  description: z.string().optional().default(""),
   brand: z.enum(["kwangshin", "tianyi", "sichuan", "tianchen", "farnova"], {
     error: "Noto'g'ri brend",
   }),
   type: z.enum(
-    ["compressor", "valve", "electro", "flow", "regulator", "piston", "seal", "hose"],
-    { error: "Noto'g'ri tur" }
+    [
+      "valves_in_out",
+      "valves_check",
+      "valves_safety",
+      "piston_parts",
+      "plates",
+      "inserts",
+      "keriskop_pins",
+      "piston_rings",
+      "copper_rings",
+      "seal_rubbers",
+      "gaskets",
+      "seal_blocks_cups",
+      "manometers",
+      "pressure_sensors",
+      "temp_controllers",
+      "gas_detectors",
+      "measuring_devices",
+      "amperator",
+      "thermostat",
+      "column_meters",
+      "cranes",
+      "fittings",
+      "hoses_connections",
+      "actuators_solenoids",
+      "magnetic_starters",
+      "electronics_psu",
+      "repair_kits",
+      "filters",
+      "lube_pump",
+      "cooling_system",
+      "antifreeze_pumps",
+    ],
+    {
+      error: "Noto'g'ri tur",
+    }
   ),
   image: z.string().max(500).optional().default(""),
 });

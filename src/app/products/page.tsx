@@ -30,15 +30,73 @@ const BRANDS = [
 	{ value: "farnova", label: "Farnova" },
 ];
 
-const TYPES = [
-	{ value: "compressor", label: "Kompressor" },
-	{ value: "valve", label: "Klapanlar" },
-	{ value: "electro", label: "Elektro uskunalar" },
-	{ value: "flow", label: "Rashodomer" },
-	{ value: "regulator", label: "Regulyator" },
-	{ value: "piston", label: "Porshen" },
-	{ value: "seal", label: "Muhrlar" },
-	{ value: "hose", label: "Shlanglar" },
+const CATEGORY_GROUPS = [
+	{
+		groupName: "Klapanlar",
+		items: [
+			{ value: "valves_in_out", label: "Klapanlar (kirish / chiqish)" },
+			{ value: "valves_check", label: "Obratniy klapanlar" },
+			{ value: "valves_safety", label: "Predoxranitel klapanlar" },
+		]
+	},
+	{
+		groupName: "Porshen va Mexanika",
+		items: [
+			{ value: "piston_parts", label: "Porshin, Shtok, Shatun, Gilzalar" },
+			{ value: "plates", label: "Plastinkalar" },
+			{ value: "inserts", label: "Vkladishlar" },
+			{ value: "keriskop_pins", label: "Keriskop Paleclar" },
+			{ value: "piston_rings", label: "Porshin kolcalar" },
+			{ value: "copper_rings", label: "Medniy kolcalar" },
+		]
+	},
+	{
+		groupName: "Muhrlar va Qistirmalar",
+		items: [
+			{ value: "seal_rubbers", label: "Salnik Rezinkalar" },
+			{ value: "gaskets", label: "Prokladkalar" },
+			{ value: "seal_blocks_cups", label: "Salnik blok va chashkalari" },
+		]
+	},
+	{
+		groupName: "O'lchov va Nazorat",
+		items: [
+			{ value: "manometers", label: "Manometrlar" },
+			{ value: "pressure_sensors", label: "Datchik Davleniyalar" },
+			{ value: "temp_controllers", label: "Harorat Nazoratchilari" },
+			{ value: "gas_detectors", label: "Gaz Detektorlarlar" },
+			{ value: "measuring_devices", label: "O‘lchash qurilmalari" },
+			{ value: "amperator", label: "Amperator" },
+			{ value: "thermostat", label: "Termostat" },
+			{ value: "column_meters", label: "Kalonka schyotchiklari" },
+		]
+	},
+	{
+		groupName: "Ulanish va Fitinglar",
+		items: [
+			{ value: "cranes", label: "Kranlar" },
+			{ value: "fittings", label: "Fitinglar" },
+			{ value: "hoses_connections", label: "Shlanglar, shtucerlar" },
+		]
+	},
+	{
+		groupName: "Elektr va Avtomatika",
+		items: [
+			{ value: "actuators_solenoids", label: "Aktivator, Solenoidlar" },
+			{ value: "magnetic_starters", label: "Magnitniy puskatellar" },
+			{ value: "electronics_psu", label: "Klaviatura, Plata, Blok" },
+		]
+	},
+	{
+		groupName: "Nasoslar va Boshqa",
+		items: [
+			{ value: "repair_kits", label: "Remkoplektlar" },
+			{ value: "filters", label: "Filtirlar" },
+			{ value: "lube_pump", label: "Moylash nasosi" },
+			{ value: "cooling_system", label: "Sovutish tizimi" },
+			{ value: "antifreeze_pumps", label: "Antifrizniy nasoslar" },
+		]
+	}
 ];
 
 /* =========================
@@ -48,9 +106,19 @@ const TYPES = [
 interface ProductCardProps {
 	product: Product;
 	onClick: () => void;
+	onOrder: () => void;
 }
 
-function ProductCard({ product, onClick }: ProductCardProps) {
+function ProductCard({ product, onClick, onOrder }: ProductCardProps) {
+	const [isOrdering, setIsOrdering] = useState(false);
+
+	const handleOrderClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		setIsOrdering(true);
+		onOrder();
+		setIsOrdering(false);
+	};
+
 	return (
 		<div className="product-card" onClick={onClick} role="button" tabIndex={0}>
 			<div className="product-image">
@@ -63,12 +131,9 @@ function ProductCard({ product, onClick }: ProductCardProps) {
 
 				<button
 					className="product-btn"
-					onClick={(e) => {
-						e.stopPropagation();
-						// handle inquiry
-					}}
+					onClick={handleOrderClick}
 				>
-					Buyurtma berish
+					{isOrdering ? "Yuborilmoqda..." : "Buyurtma berish"}
 				</button>
 			</div>
 		</div>
@@ -97,38 +162,47 @@ function Sidebar({
 	return (
 		<aside className="catalog-sidebar">
 			<h3>Kompressorlar</h3>
+			<div className="sidebar-group">
+				{BRANDS.map((brand) => (
+					<button
+						key={brand.value}
+						type="button"
+						className={`filter-btn${selectedBrand === brand.value ? " active" : ""}`}
+						onClick={() => onBrandSelect(brand.value)}
+					>
+						{brand.label}
+					</button>
+				))}
+			</div>
 
-			{BRANDS.map((brand) => (
-				<button
-					key={brand.value}
-					type="button"
-					className={`filter-btn${selectedBrand === brand.value ? " active" : ""}`}
-					onClick={() => onBrandSelect(brand.value)}
-				>
-					{brand.label}
-				</button>
-			))}
-
-			<button
-				type="button"
-				className="filter-btn reset-btn"
-				onClick={onReset}
-			>
-				Barchasi
+			<button type="button" className="filter-btn reset-btn" onClick={onReset} style={{ marginTop: "10px", width: "100%" }}>
+				Barchasini tozalash
 			</button>
 
-			<h3>Ehtiyot qismlar</h3>
-
-			{TYPES.map((type) => (
-				<button
-					key={type.value}
-					type="button"
-					className={`filter-btn${selectedType === type.value ? " active" : ""}`}
-					onClick={() => onTypeSelect(type.value)}
-				>
-					{type.label}
-				</button>
-			))}
+			<h3 style={{ marginTop: "25px", marginBottom: "15px" }}>Ehtiyot qismlar</h3>
+			<div className="sidebar-accordion">
+				{CATEGORY_GROUPS.map((group) => (
+					<details
+						key={group.groupName}
+						className="filter-details"
+						open={group.items.some(i => i.value === selectedType)}
+					>
+						<summary className="filter-summary">{group.groupName}</summary>
+						<div className="filter-details-content">
+							{group.items.map((type) => (
+								<button
+									key={type.value}
+									type="button"
+									className={`filter-btn slim-btn${selectedType === type.value ? " active" : ""}`}
+									onClick={() => onTypeSelect(type.value)}
+								>
+									{type.label}
+								</button>
+							))}
+						</div>
+					</details>
+				))}
+			</div>
 		</aside>
 	);
 }
@@ -189,7 +263,19 @@ export default function CatalogPage() {
 	};
 
 	const handleCardClick = (product: Product) => {
-		router.push(`/product-detail?id=${product.id}`);
+		// router.push(`/product-detail?id=${product.id}`);
+	};
+
+	const handleOrder = async (product: Product) => {
+		const adminUsername = process.env.NEXT_PUBLIC_ADMIN_USER_NAME;
+
+		const message =
+			`Assalomu alaykum! Mahsulot bo'yicha so'rov:
+🛍 Mahsulot: ${product.name}
+Iltimos, mavjudligini tasdiqlang.`;
+
+		const telegramUrl = `https://t.me/${adminUsername}?text=${encodeURIComponent(message)}`;
+		window.open(telegramUrl, "_blank");
 	};
 
 	return (
@@ -239,6 +325,7 @@ export default function CatalogPage() {
 										key={product.id}
 										product={product}
 										onClick={() => handleCardClick(product)}
+										onOrder={() => handleOrder(product)}
 									/>
 								))
 							)}

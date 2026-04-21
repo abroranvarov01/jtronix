@@ -402,7 +402,7 @@ footer {
 .info-box {
     position: relative;
     padding: 35px 30px;
-
+    min-width: 250px;
     border-radius: 22px;
 
     background: linear-gradient(
@@ -1258,6 +1258,66 @@ margin-bottom: 80px;
     margin: 25px 0 15px;
     font-size: 18px;
 }
+
+/* Sidebar Accordion uchun CSS */
+.filter-details {
+    margin-bottom: 8px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.filter-summary {
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filter-summary::-webkit-details-marker {
+    display: none;
+}
+
+.filter-summary::after {
+    content: "▼";
+    font-size: 10px;
+    color: #666;
+    transition: transform 0.2s;
+}
+
+.filter-details[open] .filter-summary::after {
+    transform: rotate(180deg);
+}
+
+.filter-details-content {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.slim-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    text-align: left;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slim-btn:hover {
+    background: #f0f0f0;
+}
+
+.slim-btn.active {
+    font-weight: 500;
+}
+
 .filter-btn {
 
     width: 100%;
