@@ -22,6 +22,7 @@ services:
       TELEGRAM_CHAT_ID: "-4912475701"
     ports:
       - "3000:3000"
+      - "5555:5555"
     environment:
       DATABASE_URL: "postgresql://postgres:adminsecret@postgres:5432/Petronix_db"
       TELEGRAM_BOT_TOKEN: "8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk"

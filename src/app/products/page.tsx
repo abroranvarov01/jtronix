@@ -14,7 +14,7 @@ interface Product {
 	name: string;
 	description: string;
 	image: string;
-	brand: string;
+	brand: string[];
 	type: string;
 }
 
@@ -28,6 +28,8 @@ const BRANDS = [
 	{ value: "sichuan", label: "Sichuan" },
 	{ value: "tianchen", label: "Tianchen" },
 	{ value: "farnova", label: "Farnova" },
+	{ value: "aspro", label: "Aspro" },
+	{ value: "graf", label: "Graf" },
 ];
 
 const CATEGORY_GROUPS = [
@@ -233,19 +235,23 @@ export default function CatalogPage() {
 	}, []);
 
 	/* Filter & search */
-	const filteredProducts = useMemo(() => {
-		return allProducts.filter((product) => {
-			const brandMatch =
-				!selectedBrand || product.brand === selectedBrand;
-			const typeMatch =
-				!selectedType || product.type === selectedType;
-			const searchMatch =
-				!searchQuery ||
-				product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const filteredProducts = useMemo(() => {
+        return allProducts.filter((product) => {
+            // Обновленная логика для массива брендов:
+            const brandMatch =
+                !selectedBrand || 
+                (Array.isArray(product.brand) ? product.brand.includes(selectedBrand) : product.brand === selectedBrand);
 
-			return brandMatch && typeMatch && searchMatch;
-		});
-	}, [allProducts, selectedBrand, selectedType, searchQuery]);
+            const typeMatch =
+                !selectedType || product.type === selectedType;
+                
+            const searchMatch =
+                !searchQuery ||
+                product.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+            return brandMatch && typeMatch && searchMatch;
+        });
+    }, [allProducts, selectedBrand, selectedType, searchQuery]);
 
 	/* Handlers */
 	const handleBrandSelect = (brand: string) => {
