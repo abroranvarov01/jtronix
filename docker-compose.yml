@@ -1,36 +1,53 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: Petronix_db
+    container_name: petronix_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: adminsecret
-      POSTGRES_DB: Petronix_db
+      POSTGRES_DB: petronix_db
     ports:
       - "5432:5432"
+    volumes:
+      # Old backup.sql has outdated schema (missing nameUz/nameRu/nameEn, price fields).
+      # Prisma db push creates the correct schema on startup.
+      # - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+      - postgres_data:/var/lib/postgresql/data
 
-  app:
-    build: .
-    container_name: Petronix_app
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: petronix_backend
     restart: unless-stopped
     depends_on:
       - db
     environment:
-      DATABASE_URL: "postgresql://postgres:adminsecret@db:5432/Petronix_db"
+      DATABASE_URL: "postgresql://postgres:adminsecret@db:5432/petronix_db"
+      PORT: 3001
       TELEGRAM_BOT_TOKEN: "8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk"
       TELEGRAM_CHAT_ID: "-4912475701"
+      BOT_TOKEN: "8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk"
+      ADMIN_CHAT_ID: "-4912475701"
+      JWT_SECRET: "petronix-super-secret-key-2026"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:3001/api"
+    container_name: petronix_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
     ports:
       - "3000:3000"
-      - "5555:5555"
-    environment:
-      DATABASE_URL: "postgresql://postgres:adminsecret@postgres:5432/Petronix_db"
-      TELEGRAM_BOT_TOKEN: "8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk"
-      TELEGRAM_CHAT_ID: "-4912475701"
-      NEXT_PUBLIC_ADMIN_USER_NAME: "Petronix_admin"
-    command: sh -c "npm install && npx prisma generate && npx prisma migrate deploy && npm run build && npm run start"
-    depends_on:
-      - postgres
 
 volumes:
   postgres_data:
