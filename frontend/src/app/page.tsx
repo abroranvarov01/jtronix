@@ -1,17 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image"; // Опционально: можно заменить <img> на <Image> для оптимизации
 import { Navbar } from "@/components/Navbar";
 import { ApplicationForm } from "@/components/ApplicationForm";
+import CategoryBanner from "@/components/CategoryBanner";
+import { useT } from "@/lib/i18n";
 
 export default function Home() {
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-	const toggleMenu = () => {
-		setIsMenuOpen(!isMenuOpen);
-	};
+	const t = useT();
 
 	return (
 		<>
@@ -20,74 +16,54 @@ export default function Home() {
 
 				<div className="hero-content">
 					<img src="/img/compressor.png" className="hero-img" alt="Compressor" />
-					<h1>Petronix CNG SOLUTIONS</h1>
-					<p>Metan (CNG) zapravka stansiyalari uchun professional yechimlar</p>
-					<a href="#contacts" className="btn">📞 Bog‘lanish</a>
+					<h1>{t("hero_title")}</h1>
+					<p>{t("hero_sub")}</p>
+					<a href="#contacts" className="btn">📞 {t("hero_btn")}</a>
 				</div>
 				<div className="stats">
-					<div><strong>10+</strong><span>yillik tajriba</span></div>
-					<div><strong>500+</strong><span>mijozlar</span></div>
-					<div><strong>24/7</strong><span>qo‘llab-quvvatlash</span></div>
+					<div><strong>10+</strong><span>{t("hero_exp")}</span></div>
+					<div><strong>500+</strong><span>{t("hero_clients")}</span></div>
+					<div><strong>24/7</strong><span>{t("hero_support")}</span></div>
 				</div>
-
-
 
 			</header>
 
+			<CategoryBanner />
+
 			<section id="about" className="about">
 				<div className="about-wrapper">
-					{/* Левая часть */}
 					<div className="about-left">
-						<h2>Kompaniya haqida</h2>
-						<p>
-							Petronix — metan (CNG) zapravka stansiyalari uchun sanoat uskunalari
-							va butlovchi qismlar yetkazib beruvchi kompaniya. Biz kompressorlar,
-							filtratsiya tizimlari, ehtiyot qismlar va CNG obyektlarini qurish,
-							modernizatsiya qilish hamda xizmat ko‘rsatish uchun texnik yechimlar
-							yetkazib berishga ixtisoslashganmiz.
-						</p>
-						<p>
-							Kompaniyamiz sanoat korxonalari va zapravka stansiyalari egalari
-							bilan ishlaydi, uskunalarning barqaror yetkazib berilishi va tezkor
-							texnik yordamni ta’minlaydi. Biz CNG stansiyalarining ishlash
-							xususiyatlarini yaxshi tushunamiz va uskunalarning samaradorligini
-							oshirish hamda to‘xtab qolish vaqtini kamaytirishga qaratilgan
-							yechimlarni taklif qilamiz.
-						</p>
-						<p>
-							Jamoamiz loyihalarni barcha bosqichlarda — uskunani tanlash va
-							hisob-kitob qilishdan tortib, yetkazib berish, ishga tushirish va
-							servis xizmatigacha kuzatib boradi. Biz uzoq muddatli hamkorlik va
-							ishonchlilikni qadrlaymiz.
-						</p>
+						<h2>{t("about_title")}</h2>
+						<p>{t("about_p1")}</p>
+						<p>{t("about_p2")}</p>
+						<p>{t("about_p3")}</p>
 						<Link href="#cta" className="about-btn">
-							Tijorat taklifini olish
+							{t("about_offer")}
 						</Link>
 					</div>
 
-					{/* Правая часть */}
 					<div className="about-right">
 						<div className="info-box">
 							<div className="info-icon">🎧</div>
 							<h3>24/7</h3>
-							<span>texnik qo‘llab-quvvatlash</span>
+							<span>{t("about_support")}</span>
 						</div>
 						<div className="info-box">
 							<div className="info-icon">📦</div>
 							<h3>500+</h3>
-							<span>amalga oshirilgan loyihalar</span>
+							<span>{t("about_projects")}</span>
 						</div>
 						<div className="info-box">
 							<div className="info-icon">📅</div>
 							<h3>10+</h3>
-							<span>yillik tajriba</span>
+							<span>{t("about_experience")}</span>
 						</div>
 					</div>
 				</div>
 			</section>
 
 			<section className="solutions">
-				<h2>CNG stansiyalari uchun kompleks yechimlar</h2>
+				<h2>{t("solutions_title")}</h2>
 				<div className="solutions-grid">
 					<div className="solution-card">
 						<div className="solution-icon">
@@ -95,8 +71,8 @@ export default function Home() {
 								<path d="M3 12H21M12 3V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
 							</svg>
 						</div>
-						<h3>Kompressorlar yetkazib berish</h3>
-						<p>Zapravka stansiyalari uchun sanoat CNG kompressorlari.</p>
+						<h3>{t("sol1_title")}</h3>
+						<p>{t("sol1_desc")}</p>
 					</div>
 
 					<div className="solution-card">
@@ -105,8 +81,8 @@ export default function Home() {
 								<path d="M14 7L10 17M7 14L17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
 							</svg>
 						</div>
-						<h3>Ehtiyot qismlar va butlovchi elementlar</h3>
-						<p>Klapanlar, filtrlar, sovutish modullari va nazorat tizimlari.</p>
+						<h3>{t("sol2_title")}</h3>
+						<p>{t("sol2_desc")}</p>
 					</div>
 
 					<div className="solution-card">
@@ -115,121 +91,114 @@ export default function Home() {
 								<path d="M4 15V11C4 7.13 7.13 4 11 4H13C16.87 4 20 7.13 20 11V15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
 							</svg>
 						</div>
-						<h3>Servis va texnik xizmat</h3>
-						<p>Diagnostika, ta’mirlash va 24/7 texnik qo‘llab-quvvatlash.</p>
+						<h3>{t("sol3_title")}</h3>
+						<p>{t("sol3_desc")}</p>
 					</div>
 				</div>
 			</section>
 
 			<section id="process" className="process">
-				<h2>Biz qanday ishlaymiz</h2>
+				<h2>{t("process_title")}</h2>
 				<div className="process-grid">
 					<div className="process-step">
 						<div className="step-number">01</div>
-						<h3>Vazifani tahlil qilish</h3>
-						<p>Stansiyaning texnik talablari va parametrlarini o‘rganamiz.</p>
+						<h3>{t("step1_title")}</h3>
+						<p>{t("step1_desc")}</p>
 					</div>
 					<div className="process-step">
 						<div className="step-number">02</div>
-						<h3>Uskunani tanlash</h3>
-						<p>Uskunaning optimal konfiguratsiyasini taklif qilamiz.</p>
+						<h3>{t("step2_title")}</h3>
+						<p>{t("step2_desc")}</p>
 					</div>
 					<div className="process-step">
 						<div className="step-number">03</div>
-						<h3>Yetkazib berish va ishga tushirish</h3>
-						<p>Yetkazib berish va ishga tushirish jarayonini tashkil qilamiz.</p>
+						<h3>{t("step3_title")}</h3>
+						<p>{t("step3_desc")}</p>
 					</div>
 					<div className="process-step">
 						<div className="step-number">04</div>
-						<h3>Servis qo‘llab-quvvatlash</h3>
-						<p>24/7 texnik xizmat ko‘rsatamiz.</p>
+						<h3>{t("step4_title")}</h3>
+						<p>{t("step4_desc")}</p>
 					</div>
 				</div>
 			</section>
 
 			<section id="projects" className="projects">
-				<h2>Amalga oshirilgan loyihalar</h2>
-				<p className="projects-sub">
-					CNG obyektlari uchun amalga oshirilgan yetkazib berish va texnik yechimlar namunasi.
-				</p>
+				<h2>{t("projects_title")}</h2>
+				<p className="projects-sub">{t("projects_sub")}</p>
 				<div className="projects-grid">
 					<div className="project-card">
 						<div className="project-image">
-							<img src="/img/1.png" alt="project-image" />
+							<img src="/img/1.png" alt="project" />
 						</div>
-						<h3>CNG stansiyasini modernizatsiya qilish</h3>
-						<p>Kompressor uskunalari va filtrlash tizimlarini yetkazib berish.</p>
+						<h3>{t("proj1_title")}</h3>
+						<p>{t("proj1_desc")}</p>
 					</div>
 					<div className="project-card">
 						<div className="project-image">
-							<img src="/img/2.png" alt="project-image" />
+							<img src="/img/2.png" alt="project" />
 						</div>
-						<h3>Yangi stansiya qurilishi</h3>
-						<p>Ishga tushirish uchun kompleks uskunalar va texnik yordam.</p>
+						<h3>{t("proj2_title")}</h3>
+						<p>{t("proj2_desc")}</p>
 					</div>
 					<div className="project-card">
 						<div className="project-image">
-							<img src="/img/3.png" alt="project-image" />
+							<img src="/img/3.png" alt="project" />
 						</div>
-						<h3>Servis xizmati</h3>
-						<p>Diagnostika va operatsion ob'ekt uchun komponentlarni etkazib berish.</p>
+						<h3>{t("proj3_title")}</h3>
+						<p>{t("proj3_desc")}</p>
 					</div>
 				</div>
 			</section>
 
 			<section id="cta" className="cta">
 				<div className="cta-content">
-					<h2>Loyihangizni muhokama qilishga tayyormisiz?</h2>
-					<p className="cta-sub">
-						24 soat ichida individual tijorat taklifi va texnik hisob-kitob tayyorlaymiz.
-					</p>
+					<h2>{t("cta_title")}</h2>
+					<p className="cta-sub">{t("cta_sub")}</p>
 
 					<ApplicationForm />
 
 					<div className="cta-trust">
-						<div>⚡ 24 soat ichida javob</div>
-						<div>🔒 Maxfiylik kafolatlanadi</div>
-						<div>📞 Bepul maslahat</div>
+						<div>⚡ {t("cta_trust1")}</div>
+						<div>🔒 {t("cta_trust2")}</div>
+						<div>📞 {t("cta_trust3")}</div>
 					</div>
 				</div>
 			</section>
 
 			<section className="faq">
-				<h2>Ko‘p beriladigan savollar</h2>
+				<h2>{t("faq_title")}</h2>
 				<div className="faq-grid">
 					<div className="faq-item">
-						<h3>Tijorat taklifi qancha vaqtda tayyorlanadi?</h3>
-						<p>Loyihaning murakkabligiga qarab o'rtacha 24-48 soat.</p>
+						<h3>{t("faq1_q")}</h3>
+						<p>{t("faq1_a")}</p>
 					</div>
 					<div className="faq-item">
-						<h3>Viloyatlar bilan ishlaysizmi?</h3>
-						<p>Ha, biz butun O'zbekiston bo'ylab uskunalar yetkazib beramiz.</p>
+						<h3>{t("faq2_q")}</h3>
+						<p>{t("faq2_a")}</p>
 					</div>
 					<div className="faq-item">
-						<h3>Kafolat beriladimi?</h3>
-						<p>
-							Biz ishlab chiqaruvchining rasmiy kafolati asosida sertifikatlangan
-							uskunalarni yetkazib berishni ta’minlaymiz.
-						</p>
+						<h3>{t("faq3_q")}</h3>
+						<p>{t("faq3_a")}</p>
 					</div>
 					<div className="faq-item">
-						<h3>Servis qo‘llab-quvvatlash ko‘rsatasizmi?</h3>
-						<p>Ha, biz 24/7 texnik qo‘llab-quvvatlash va servis xizmatlarini ko‘rsatamiz.</p>
+						<h3>{t("faq4_q")}</h3>
+						<p>{t("faq4_a")}</p>
 					</div>
 				</div>
 			</section>
 
 			<section id="contacts" className="contacts">
-				<h2>Kontaktlar</h2>
+				<h2>{t("contacts_title")}</h2>
 				<div className="contacts-wrapper">
 					<div className="contacts-info">
-						<h3>Biz bilan bog‘laning</h3>
+						<h3>{t("contacts_reach")}</h3>
 						<br />
-						<p><strong>Telefon:</strong> +998 98 011 33 44</p>
+						<p><strong>{t("contacts_phone")}:</strong> +998 98 011 33 44</p>
 						<p><strong>Email:</strong> petronixtechnologies@gmail.com</p>
-						<p><strong>Manzil:</strong> Toshkent shahri, Sergeli tumani, Sultonobod mahallasi, 272A</p>
+						<p><strong>{t("contacts_address")}:</strong> {t("contacts_addr_val")}</p>
 						<a href="https://t.me/Petronix_admin" target="_blank" rel="noreferrer" className="contact-btn">
-							💬 Telegram orqali yozish
+							💬 {t("contacts_tg")}
 						</a>
 
 						<div className="social-links">
@@ -265,24 +234,20 @@ export default function Home() {
 				<div className="footer-container">
 					<div className="footer-brand">
 						<img src="/img/logo.png" alt="Petronix Logo" />
-						<p>
-							CNG stansiyalari uchun uskunalar va butlovchi qismlar yetkazib
-							beruvchi kompaniya. Gaz to‘ldirish infratuzilmasini qurish va
-							modernizatsiya qilish bo‘yicha kompleks yechimlarni taklif etamiz.
-						</p>
+						<p>{t("footer_desc")}</p>
 					</div>
 
 					<div className="footer-nav">
-						<h4>Navigatsiya</h4>
-						<Link href="#about">Kompaniya haqida</Link>
-						<Link href="#process">Yechimlar</Link>
-						<Link href="#projects">Loyihalar</Link>
-						<Link href="#">Mahsulotlar</Link>
+						<h4>{t("footer_nav")}</h4>
+						<Link href="#about">{t("footer_about")}</Link>
+						<Link href="#process">{t("footer_solutions")}</Link>
+						<Link href="#projects">{t("footer_projects")}</Link>
+						<Link href="/products">{t("nav_products")}</Link>
 					</div>
 
 					<div className="footer-contacts">
-						<h4>Kontaktlar</h4>
-						<p>📍 Toshkent shahri, Sergeli tumani, Sultonobod mahallasi, 272A</p>
+						<h4>{t("contacts_title")}</h4>
+						<p>📍 {t("contacts_addr_val")}</p>
 						<p>📞 +998 98 011 33 44</p>
 						<p>✉ petronixtechnologies@gmail.com</p>
 
@@ -303,7 +268,7 @@ export default function Home() {
 					</div>
 				</div>
 				<div className="footer-bottom">
-					© 2026 Petronix Technologies. Barcha huquqlar himoyalangan.
+					© 2026 Petronix Technologies. {t("footer_copy")}
 				</div>
 			</footer>
 		</>

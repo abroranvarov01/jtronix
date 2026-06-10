@@ -1,7 +1,12 @@
+"use client";
+
 import React, { useState } from 'react';
+import { API_URL } from '@/lib/api';
+import { useT } from '@/lib/i18n';
 
 export const ApplicationForm: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
+    const t = useT();
 
     const submitMessage = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
@@ -9,7 +14,7 @@ export const ApplicationForm: React.FC = () => {
 
         const form = e.currentTarget;
         const formData = new FormData(form);
-        
+
         const data = {
             name: formData.get("name"),
             phone: formData.get("phone"),
@@ -17,21 +22,20 @@ export const ApplicationForm: React.FC = () => {
         };
 
         try {
-            // Отправляем запрос на наш внутренний API
-            const response = await fetch('/api/send-message', {
+            const response = await fetch(`${API_URL}/send-message`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
             });
 
             if (response.ok) {
-                alert("Заявка успешно отправлена!");
+                alert(t("cta_success"));
                 form.reset();
             } else {
-                alert("Ошибка сервера при отправке.");
+                alert(t("cta_error"));
             }
-        } catch (error) {
-            alert("Ошибка сети.");
+        } catch {
+            alert(t("cta_network"));
         } finally {
             setLoading(false);
         }
@@ -39,11 +43,11 @@ export const ApplicationForm: React.FC = () => {
 
     return (
         <form className="cta-form" onSubmit={submitMessage}>
-            <input type="text" name="name" placeholder="Ваше имя" required />
-            <input type="tel" name="phone" placeholder="Ваш телефон" required />
-            <input type="email" name="email" placeholder="Ваш Email" required />
+            <input type="text" name="name" placeholder={t("cta_name")} required />
+            <input type="tel" name="phone" placeholder={t("cta_phone")} required />
+            <input type="email" name="email" placeholder={t("cta_email")} required />
             <button type="submit" disabled={loading}>
-                {loading ? "Отправка..." : "Отправить запрос"}
+                {loading ? t("cta_sending") : t("cta_submit")}
             </button>
         </form>
     );

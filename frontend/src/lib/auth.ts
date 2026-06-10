@@ -1,60 +1,38 @@
-// lib/auth.ts
-import { SignJWT, jwtVerify } from "jose";
-import { cookies } from "next/headers";
+// Client-side auth helpers
 
-const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "change-this-secret-in-env"
-);
-
-const COOKIE_NAME = "Petronix_token";
-const MAX_AGE = 60 * 60 * 8; // 8 soat
-
-/* ── Token yaratish ─────────────────────────────────────── */
-
-export async function signToken(payload: { userId: string; email: string }) {
-  return new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("8h")
-    .sign(SECRET);
+export function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
 }
 
-/* ── Token tekshirish ───────────────────────────────────── */
-
-export async function verifyToken(token: string) {
+export function getUser(): { id: string; email: string; role: string } | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem("user");
+  if (!raw) return null;
   try {
-    const { payload } = await jwtVerify(token, SECRET);
-    return payload as { userId: string; email: string };
+    return JSON.parse(raw);
   } catch {
     return null;
   }
 }
 
-/* ── Cookie o'rnatish ───────────────────────────────────── */
-
-export async function setAuthCookie(token: string) {
-  const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: MAX_AGE,
-    path: "/",
-  });
+export function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token
+    ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+    : { "Content-Type": "application/json" };
 }
 
-/* ── Cookie o'chirish ───────────────────────────────────── */
-
-export async function clearAuthCookie() {
-  const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+export function authHeadersMultipart(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-/* ── Cookie dan foydalanuvchi olish ────────────────────── */
+export function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+}
 
-export async function getAuthUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-  if (!token) return null;
-  return verifyToken(token);
+export function isLoggedIn(): boolean {
+  return !!getToken();
 }

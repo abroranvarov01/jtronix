@@ -10,7 +10,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+      # Old backup.sql has outdated schema (missing nameUz/nameRu/nameEn, price fields).
+      # Prisma db push creates the correct schema on startup.
+      # - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
       - postgres_data:/var/lib/postgresql/data
 
   backend:
@@ -24,6 +26,11 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgres:adminsecret@db:5432/petronix_db"
       PORT: 3001
+      TELEGRAM_BOT_TOKEN: "8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk"
+      TELEGRAM_CHAT_ID: "-4912475701"
+      BOT_TOKEN: "8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk"
+      ADMIN_CHAT_ID: "-4912475701"
+      JWT_SECRET: "petronix-super-secret-key-2026"
     ports:
       - "3001:3001"
     volumes:
@@ -33,16 +40,14 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:3001/api"
     container_name: petronix_frontend
     restart: unless-stopped
     depends_on:
       - backend
-    environment:
-      NEXT_PUBLIC_API_URL: "http://backend:3001/api"
     ports:
       - "3000:3000"
-    volumes:
-      - ./uploads:/app/public/img/products
 
 volumes:
   postgres_data:

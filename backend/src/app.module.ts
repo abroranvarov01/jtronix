@@ -6,6 +6,10 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
+import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './auth/auth.module';
+import { UploadModule } from './upload/upload.module';
+import { TelegramModule } from './telegram/telegram.module';
 
 @Module({
   imports: [
@@ -14,8 +18,12 @@ import { ProductsModule } from './products/products.module';
       serveRoot: '/uploads',
     }),
     PrismaModule,
+    AuthModule,
     UsersModule,
     ProductsModule,
+    CategoriesModule,
+    UploadModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],

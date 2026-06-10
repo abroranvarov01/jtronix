@@ -1,7 +1,8 @@
 "use client";
 
-// app/admin/components/ImageUpload.tsx
 import { useState, useRef, useCallback } from "react";
+import { API_URL } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 
 interface ImageUploadProps {
   value: string;
@@ -67,7 +68,9 @@ export default function ImageUpload({ value, onChange, onError }: ImageUploadPro
       onError?.("Tarmoq xatosi");
     });
 
-    xhr.open("POST", "/api/upload");
+    xhr.open("POST", `${API_URL}/upload`);
+    const token = getToken();
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
     xhr.send(fd);
     setProgress(0);
   }, [onChange, onError]);

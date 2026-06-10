@@ -1,345 +1,202 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
+import { API_URL } from "@/lib/api";
+import { useLang, useT } from "@/lib/i18n";
+import type { Lang } from "@/lib/i18n";
 
-/* =========================
-   TYPES
-========================= */
+/* ========================= TYPES ========================= */
 
 interface Product {
-	id: string | number;
-	name: string;
-	description: string;
+	id: string;
+	nameUz: string;
+	nameRu: string;
+	nameEn: string;
+	descriptionUz: string;
+	descriptionRu: string;
+	descriptionEn: string;
 	image: string;
 	brand: string[];
 	type: string;
+	sellPrice: number;
+	owner?: { id: string; name: string };
 }
 
-/* =========================
-   FILTER CONFIG
-========================= */
-
-const BRANDS = [
-	{ value: "kwangshin", label: "Kwangshin" },
-	{ value: "tianyi", label: "Tianyi" },
-	{ value: "sichuan", label: "Sichuan" },
-	{ value: "tianchen", label: "Tianchen" },
-	{ value: "farnova", label: "Farnova" },
-	{ value: "aspro", label: "Aspro" },
-	{ value: "graf", label: "Graf" },
-];
-
-const CATEGORY_GROUPS = [
-	{
-		groupName: "Klapanlar",
-		items: [
-			{ value: "valves_in_out", label: "Klapanlar (kirish / chiqish)" },
-			{ value: "valves_check", label: "Obratniy klapanlar" },
-			{ value: "valves_safety", label: "Predoxranitel klapanlar" },
-		]
-	},
-	{
-		groupName: "Porshen va Mexanika",
-		items: [
-			{ value: "piston_parts", label: "Porshin, Shtok, Shatun, Gilzalar" },
-			{ value: "plates", label: "Plastinkalar" },
-			{ value: "inserts", label: "Vkladishlar" },
-			{ value: "keriskop_pins", label: "Keriskop Paleclar" },
-			{ value: "piston_rings", label: "Porshin kolcalar" },
-			{ value: "copper_rings", label: "Medniy kolcalar" },
-		]
-	},
-	{
-		groupName: "Muhrlar va Qistirmalar",
-		items: [
-			{ value: "seal_rubbers", label: "Salnik Rezinkalar" },
-			{ value: "gaskets", label: "Prokladkalar" },
-			{ value: "seal_blocks_cups", label: "Salnik blok va chashkalari" },
-		]
-	},
-	{
-		groupName: "O'lchov va Nazorat",
-		items: [
-			{ value: "manometers", label: "Manometrlar" },
-			{ value: "pressure_sensors", label: "Datchik Davleniyalar" },
-			{ value: "temp_controllers", label: "Harorat Nazoratchilari" },
-			{ value: "gas_detectors", label: "Gaz Detektorlarlar" },
-			{ value: "measuring_devices", label: "O‘lchash qurilmalari" },
-			{ value: "amperator", label: "Amperator" },
-			{ value: "thermostat", label: "Termostat" },
-			{ value: "column_meters", label: "Kalonka schyotchiklari" },
-		]
-	},
-	{
-		groupName: "Ulanish va Fitinglar",
-		items: [
-			{ value: "cranes", label: "Kranlar" },
-			{ value: "fittings", label: "Fitinglar" },
-			{ value: "hoses_connections", label: "Shlanglar, shtucerlar" },
-		]
-	},
-	{
-		groupName: "Elektr va Avtomatika",
-		items: [
-			{ value: "actuators_solenoids", label: "Aktivator, Solenoidlar" },
-			{ value: "magnetic_starters", label: "Magnitniy puskatellar" },
-			{ value: "electronics_psu", label: "Klaviatura, Plata, Blok" },
-		]
-	},
-	{
-		groupName: "Nasoslar va Boshqa",
-		items: [
-			{ value: "repair_kits", label: "Remkoplektlar" },
-			{ value: "filters", label: "Filtirlar" },
-			{ value: "lube_pump", label: "Moylash nasosi" },
-			{ value: "cooling_system", label: "Sovutish tizimi" },
-			{ value: "antifreeze_pumps", label: "Antifrizniy nasoslar" },
-		]
-	}
-];
-
-/* =========================
-   PRODUCT CARD
-========================= */
-
-interface ProductCardProps {
-	product: Product;
-	onClick: () => void;
-	onOrder: () => void;
+interface Category {
+	id: string;
+	name: string;
+	slug: string;
 }
 
-function ProductCard({ product, onClick, onOrder }: ProductCardProps) {
-	const [isOrdering, setIsOrdering] = useState(false);
+/* ========================= HELPERS ========================= */
 
-	const handleOrderClick = (e: React.MouseEvent) => {
-		e.stopPropagation();
-		setIsOrdering(true);
-		onOrder();
-		setIsOrdering(false);
-	};
+const USD_TO_UZS = 13000;
 
+function formatUZS(usd: number): string {
+	const sum = Math.round(usd * USD_TO_UZS);
+	return sum.toLocaleString("uz-UZ") + " UZS";
+}
+
+function getName(p: Product, lang: Lang): string {
+	if (lang === "ru" && p.nameRu) return p.nameRu;
+	if (lang === "en" && p.nameEn) return p.nameEn;
+	return p.nameUz || p.nameRu || p.nameEn;
+}
+
+function getDesc(p: Product, lang: Lang): string {
+	if (lang === "ru" && p.descriptionRu) return p.descriptionRu;
+	if (lang === "en" && p.descriptionEn) return p.descriptionEn;
+	return p.descriptionUz || p.descriptionRu || p.descriptionEn;
+}
+
+/* ========================= PRODUCT CARD ========================= */
+
+function ProductCard({ product, lang, orderLabel, onOrder }: {
+	product: Product; lang: Lang; orderLabel: string; onOrder: () => void;
+}) {
 	return (
-		<div className="product-card" onClick={onClick} role="button" tabIndex={0}>
-			<div className="product-image">
-				<img src={product.image} alt={product.name} />
+		<div className="pcard">
+			<div className="pcard-img-wrap">
+				{product.image ? (
+					<img src={product.image} alt={getName(product, lang)} className="pcard-img" />
+				) : (
+					<div className="pcard-img-placeholder" />
+				)}
 			</div>
-
-			<div className="product-info">
-				<h4 className="product-title">{product.name}</h4>
-				<p className="product-desc">{product.description}</p>
-
-				<button
-					className="product-btn"
-					onClick={handleOrderClick}
-				>
-					{isOrdering ? "Yuborilmoqda..." : "Buyurtma berish"}
-				</button>
+			<div className="pcard-body">
+				<h4 className="pcard-name">{getName(product, lang)}</h4>
+				{product.sellPrice > 0 && (
+					<p className="pcard-price">{formatUZS(product.sellPrice)}</p>
+				)}
+				<div className="pcard-actions">
+					<button className="pcard-buy" onClick={onOrder}>{orderLabel}</button>
+				</div>
 			</div>
 		</div>
 	);
 }
 
-/* =========================
-   SIDEBAR
-========================= */
+/* ========================= CATALOG PAGE ========================= */
 
-interface SidebarProps {
-	selectedBrand: string | null;
-	selectedType: string | null;
-	onBrandSelect: (brand: string) => void;
-	onTypeSelect: (type: string) => void;
-	onReset: () => void;
-}
-
-function Sidebar({
-	selectedBrand,
-	selectedType,
-	onBrandSelect,
-	onTypeSelect,
-	onReset,
-}: SidebarProps) {
+export default function CatalogPageWrapper() {
 	return (
-		<aside className="catalog-sidebar">
-			<h3>Kompressorlar</h3>
-			<div className="sidebar-group">
-				{BRANDS.map((brand) => (
-					<button
-						key={brand.value}
-						type="button"
-						className={`filter-btn${selectedBrand === brand.value ? " active" : ""}`}
-						onClick={() => onBrandSelect(brand.value)}
-					>
-						{brand.label}
-					</button>
-				))}
-			</div>
-
-			<button type="button" className="filter-btn reset-btn" onClick={onReset} style={{ marginTop: "10px", width: "100%" }}>
-				Barchasini tozalash
-			</button>
-
-			<h3 style={{ marginTop: "25px", marginBottom: "15px" }}>Ehtiyot qismlar</h3>
-			<div className="sidebar-accordion">
-				{CATEGORY_GROUPS.map((group) => (
-					<details
-						key={group.groupName}
-						className="filter-details"
-						open={group.items.some(i => i.value === selectedType)}
-					>
-						<summary className="filter-summary">{group.groupName}</summary>
-						<div className="filter-details-content">
-							{group.items.map((type) => (
-								<button
-									key={type.value}
-									type="button"
-									className={`filter-btn slim-btn${selectedType === type.value ? " active" : ""}`}
-									onClick={() => onTypeSelect(type.value)}
-								>
-									{type.label}
-								</button>
-							))}
-						</div>
-					</details>
-				))}
-			</div>
-		</aside>
+		<Suspense fallback={<><Navbar /><div style={{ textAlign: "center", padding: "80px 20px", color: "#64748b" }}>...</div></>}>
+			<CatalogPage />
+		</Suspense>
 	);
 }
 
-/* =========================
-   CATALOG PAGE
-========================= */
+function CatalogPage() {
+	const searchParams = useSearchParams();
+	const { lang } = useLang();
+	const t = useT();
 
-export default function CatalogPage() {
-	const router = useRouter();
-
-	const [allProducts, setAllProducts] = useState<Product[]>([]);
+	const [products, setProducts] = useState<Product[]>([]);
+	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-	const [selectedType, setSelectedType] = useState<string | null>(null);
-	const [searchQuery, setSearchQuery] = useState("");
+	const [selectedType, setSelectedType] = useState<string | null>(searchParams.get("type"));
+	const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
 
-	/* Load products */
 	useEffect(() => {
-		fetch("/api/products")
-			.then((res) => res.json())
-			.then((data: Product[]) => {
-				setAllProducts(data);
-				setLoading(false);
-			})
-			.catch(() => setLoading(false));
+		Promise.all([
+			fetch(`${API_URL}/products`).then((r) => r.json()),
+			fetch(`${API_URL}/categories`).then((r) => r.json()),
+		])
+			.then(([prods, cats]) => { setProducts(prods); setCategories(cats); })
+			.finally(() => setLoading(false));
 	}, []);
 
-	/* Filter & search */
-    const filteredProducts = useMemo(() => {
-        return allProducts.filter((product) => {
-            // Обновленная логика для массива брендов:
-            const brandMatch =
-                !selectedBrand || 
-                (Array.isArray(product.brand) ? product.brand.includes(selectedBrand) : product.brand === selectedBrand);
+	useEffect(() => {
+		setSelectedType(searchParams.get("type"));
+		setSearchQuery(searchParams.get("q") || "");
+	}, [searchParams]);
 
-            const typeMatch =
-                !selectedType || product.type === selectedType;
-                
-            const searchMatch =
-                !searchQuery ||
-                product.name.toLowerCase().includes(searchQuery.toLowerCase());
+	const filtered = useMemo(() => {
+		return products.filter((p) => {
+			const typeOk = !selectedType || p.type === selectedType;
+			const q = searchQuery.toLowerCase();
+			const searchOk = !q ||
+				getName(p, lang).toLowerCase().includes(q) ||
+				getDesc(p, lang).toLowerCase().includes(q);
+			return typeOk && searchOk;
+		});
+	}, [products, selectedType, searchQuery, lang]);
 
-            return brandMatch && typeMatch && searchMatch;
-        });
-    }, [allProducts, selectedBrand, selectedType, searchQuery]);
+	const activeCategory = categories.find((c) => c.slug === selectedType);
 
-	/* Handlers */
-	const handleBrandSelect = (brand: string) => {
-		setSelectedBrand((prev) => (prev === brand ? null : brand));
-	};
-
-	const handleTypeSelect = (type: string) => {
-		setSelectedType((prev) => (prev === type ? null : type));
-	};
-
-	const handleReset = () => {
-		setSelectedBrand(null);
-		setSelectedType(null);
-		setSearchQuery("");
-	};
-
-	const handleCardClick = (product: Product) => {
-		// router.push(`/product-detail?id=${product.id}`);
-	};
-
-	const handleOrder = async (product: Product) => {
+	const handleOrder = (product: Product) => {
 		const adminUsername = process.env.NEXT_PUBLIC_ADMIN_USER_NAME;
-
-		const message =
-			`Assalomu alaykum! Mahsulot bo'yicha so'rov:
-🛍 Mahsulot: ${product.name}
-Iltimos, mavjudligini tasdiqlang.`;
-
-		const telegramUrl = `https://t.me/${adminUsername}?text=${encodeURIComponent(message)}`;
-		window.open(telegramUrl, "_blank");
+		const msg = `Assalomu alaykum! Mahsulot bo'yicha so'rov:\n🛍 ${getName(product, "uz")}\n💰 ${formatUZS(product.sellPrice)}`;
+		window.open(`https://t.me/${adminUsername}?text=${encodeURIComponent(msg)}`, "_blank");
 	};
 
 	return (
 		<>
 			<Navbar />
 
-			{/* PAGE HEADER */}
-			<section className="products-header">
-				<div className="products-header-content">
-					<h1>Kompressorlar va Ehtiyot qismlar katalogi</h1>
-					<p>
-						CNG gaz zapravka stansiyalari uchun professional uskunalar va
-						original ehtiyot qismlar
-					</p>
-				</div>
-			</section>
+			<div className="catalog-page">
+				{/* Left: category list */}
+				<aside className="catalog-aside">
+					<h3 className="catalog-aside-title">{t("prod_categories")}</h3>
+					<button
+						className={`cat-link${!selectedType ? " active" : ""}`}
+						onClick={() => setSelectedType(null)}
+					>
+						{t("prod_all")}
+					</button>
+					{categories.map((cat) => (
+						<button
+							key={cat.id}
+							className={`cat-link${selectedType === cat.slug ? " active" : ""}`}
+							onClick={() => setSelectedType(cat.slug)}
+						>
+							{cat.name}
+						</button>
+					))}
+				</aside>
 
-			{/* CATALOG SECTION */}
-			<section className="catalog-section">
-				<div className="catalog-container">
+				{/* Right: products */}
+				<main className="catalog-main">
+					<div className="catalog-toprow">
+						<h2 className="catalog-heading">
+							{activeCategory ? activeCategory.name : t("prod_all_products")}
+						</h2>
+					</div>
 
-					<Sidebar
-						selectedBrand={selectedBrand}
-						selectedType={selectedType}
-						onBrandSelect={handleBrandSelect}
-						onTypeSelect={handleTypeSelect}
-						onReset={handleReset}
-					/>
-
-					<div className="catalog-right">
+					{/* Search */}
+					<div className="catalog-search-row">
 						<input
 							type="text"
-							className="catalog-search"
-							placeholder="Mahsulot qidirish..."
+							className="catalog-search-input"
+							placeholder={t("prod_search")}
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
-
-						<div id="productsContainer" className="products-grid">
-							{loading ? (
-								<p>Yuklanmoqda...</p>
-							) : filteredProducts.length === 0 ? (
-								<p>Mahsulotlar topilmadi.</p>
-							) : (
-								filteredProducts.map((product) => (
-									<ProductCard
-										key={product.id}
-										product={product}
-										onClick={() => handleCardClick(product)}
-										onOrder={() => handleOrder(product)}
-									/>
-								))
-							)}
-						</div>
 					</div>
 
-				</div>
-			</section>
+					{/* Grid */}
+					<div className="catalog-grid">
+						{loading ? (
+							<p className="catalog-status">{t("prod_loading")}</p>
+						) : filtered.length === 0 ? (
+							<p className="catalog-status">{t("prod_empty")}</p>
+						) : (
+							filtered.map((p) => (
+								<ProductCard
+									key={p.id}
+									product={p}
+									lang={lang}
+									orderLabel={t("prod_order")}
+									onOrder={() => handleOrder(p)}
+								/>
+							))
+						)}
+					</div>
+				</main>
+			</div>
 		</>
 	);
 }
