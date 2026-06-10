@@ -1,0 +1,60 @@
+# Production docker-compose
+# Usage: docker compose -f docker-compose.prod.yml up -d --build
+#
+# Before running, set your server IP or domain:
+#   export SERVER_HOST=your-server-ip-or-domain
+#
+# Example:
+#   export SERVER_HOST=185.200.10.50
+#   docker compose -f docker-compose.prod.yml up -d --build
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: petronix_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-adminsecret}
+      POSTGRES_DB: petronix_db
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: petronix_backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql://postgres:${DB_PASSWORD:-adminsecret}@db:5432/petronix_db"
+      PORT: 3001
+      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN:-8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk}"
+      TELEGRAM_CHAT_ID: "${TELEGRAM_CHAT_ID:--4912475701}"
+      BOT_TOKEN: "${TELEGRAM_BOT_TOKEN:-8591029476:AAEGZBysaWCgrzyZNwAdFi8wl4Q9kEFl1Pk}"
+      ADMIN_CHAT_ID: "${TELEGRAM_CHAT_ID:--4912475701}"
+      JWT_SECRET: "${JWT_SECRET:-petronix-super-secret-key-2026}"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://${SERVER_HOST:-localhost}:3001/api"
+    container_name: petronix_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
