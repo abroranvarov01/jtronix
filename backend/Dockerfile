@@ -11,4 +11,4 @@ COPY . .
 RUN npm run build
 
 EXPOSE 3001
-CMD ["sh", "-c", "npx prisma db push && npm run start:prod"]
+CMD ["sh", "-c", "npx prisma db push --url \"$DATABASE_URL\" && npm run start:prod"]
