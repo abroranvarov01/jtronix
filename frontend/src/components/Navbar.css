@@ -10,7 +10,7 @@
     left: 50%;
     transform: translateX(-50%);
     width: min(90%, 1300px);
-    padding: 18px 50px;
+    padding: 14px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -153,11 +153,11 @@
 }
 
 @media (max-width: 1200px) {
-    .navbar { padding: 16px 35px; border-radius: 50px; }
+    .navbar { padding: 12px 35px; border-radius: 50px; }
 }
 
 @media (max-width: 1024px) {
-    .navbar { width: 94%; padding: 14px 25px; border-radius: 40px; }
+    .navbar { width: 94%; padding: 10px 25px; border-radius: 40px; }
 }
 
 @media (max-width: 768px) {
@@ -221,6 +221,6 @@
 }
 
 @media (max-width: 480px) {
-    .navbar { padding: 12px 14px; }
+    .navbar { padding: 10px 14px; }
     .burger { top: 25px; left: 30px; }
 }
