@@ -34,7 +34,10 @@ export default function CategoryBanner() {
     fetch(`${API_URL}/categories`)
       .then((r) => r.json())
       .then((data: Category[]) => {
-        if (Array.isArray(data) && data.length > 0) setCategories(data);
+        if (Array.isArray(data)) {
+          const withPhoto = data.filter((c) => !!c.image);
+          setCategories(withPhoto);
+        }
       })
       .catch(() => {})
       .finally(() => setLoaded(true));
