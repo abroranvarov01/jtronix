@@ -26,6 +26,7 @@
     height: 100%;
     object-fit: cover;
     display: block;
+	object-position: center;
 }
 
 .cat-banner-placeholder {

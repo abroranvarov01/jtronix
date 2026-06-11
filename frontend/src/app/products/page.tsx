@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect, useMemo } from "react";
+import { Suspense, useState, useEffect, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { API_URL, imgUrl } from "@/lib/api";
@@ -128,6 +128,19 @@ function CatalogPage() {
 
 	const activeCategory = categories.find((c) => c.slug === selectedType);
 
+	const [catalogOpen, setCatalogOpen] = useState(false);
+	const catalogRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		function onClickOutside(e: MouseEvent) {
+			if (catalogRef.current && !catalogRef.current.contains(e.target as Node)) {
+				setCatalogOpen(false);
+			}
+		}
+		document.addEventListener("mousedown", onClickOutside);
+		return () => document.removeEventListener("mousedown", onClickOutside);
+	}, []);
+
 	const handleOrder = (product: Product) => {
 		const adminUsername = process.env.NEXT_PUBLIC_ADMIN_USER_NAME;
 		const msg = `Assalomu alaykum! Mahsulot bo'yicha so'rov:\n🛍 ${getName(product, "uz")}\n💰 ${formatUZS(product.sellPrice)}`;
@@ -139,7 +152,7 @@ function CatalogPage() {
 			<Navbar />
 
 			<div className="catalog-page">
-				{/* Left: category list */}
+				{/* Left: category list — desktop sidebar */}
 				<aside className="catalog-aside">
 					<h3 className="catalog-aside-title">{t("prod_categories")}</h3>
 					<button
@@ -167,15 +180,56 @@ function CatalogPage() {
 						</h2>
 					</div>
 
-					{/* Search */}
+					{/* Search + Catalog button row */}
 					<div className="catalog-search-row">
-						<input
-							type="text"
-							className="catalog-search-input"
-							placeholder={t("prod_search")}
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-						/>
+						<div className="catalog-search-bar" ref={catalogRef}>
+							{/* Catalog button */}
+							<div className="cat-dropdown-wrap">
+								<button
+									className={`cat-dropdown-btn${catalogOpen ? " open" : ""}`}
+									onClick={() => setCatalogOpen((v) => !v)}
+									aria-expanded={catalogOpen}
+								>
+									<svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+										<rect y="0" width="18" height="2.5" rx="1.25" fill="currentColor"/>
+										<rect y="5.75" width="13" height="2.5" rx="1.25" fill="currentColor"/>
+										<rect y="11.5" width="9" height="2.5" rx="1.25" fill="currentColor"/>
+									</svg>
+									<span>{t("prod_categories")}</span>
+									<svg className="cat-dropdown-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
+										<path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+									</svg>
+								</button>
+
+								{catalogOpen && (
+									<div className="cat-dropdown-panel">
+										<button
+											className={`cat-dropdown-item${!selectedType ? " active" : ""}`}
+											onClick={() => { setSelectedType(null); setCatalogOpen(false); }}
+										>
+											{t("prod_all")}
+										</button>
+										{categories.map((cat) => (
+											<button
+												key={cat.id}
+												className={`cat-dropdown-item${selectedType === cat.slug ? " active" : ""}`}
+												onClick={() => { setSelectedType(cat.slug); setCatalogOpen(false); }}
+											>
+												{cat.name}
+											</button>
+										))}
+									</div>
+								)}
+							</div>
+
+							<input
+								type="text"
+								className="catalog-search-input"
+								placeholder={t("prod_search")}
+								value={searchQuery}
+								onChange={(e) => setSearchQuery(e.target.value)}
+							/>
+						</div>
 					</div>
 
 					{/* Grid */}
