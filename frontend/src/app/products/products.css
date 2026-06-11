@@ -357,7 +357,7 @@
     overflow: hidden;
 }
 
-.pcard-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.pcard-img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.4s; background: white; }
 .pcard:hover .pcard-img { transform: scale(1.04); }
 .pcard-img-placeholder { width: 100%; height: 100%; background: #1a2d4a; }
 
