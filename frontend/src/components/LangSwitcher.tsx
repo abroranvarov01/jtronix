@@ -39,7 +39,7 @@ export default function LangSwitcher() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Language"
       >
-        <span className="lang-sw-flag">{current.flag}</span>
+        {/* <span className="lang-sw-flag">{current.flag}</span> */}
         <span className="lang-sw-code">{current.label}</span>
         <svg className={`lang-sw-arrow${open ? " open" : ""}`} width="10" height="6" viewBox="0 0 10 6" fill="none">
           <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -54,7 +54,7 @@ export default function LangSwitcher() {
               className={`lang-sw-item${l.code === lang ? " active" : ""}`}
               onClick={() => pick(l.code)}
             >
-              <span className="lang-sw-flag">{l.flag}</span>
+              {/* <span className="lang-sw-flag">{l.flag}</span> */}
               <span>{l.label}</span>
             </button>
           ))}
