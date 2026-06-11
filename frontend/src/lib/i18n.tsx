@@ -209,6 +209,7 @@ const t = {
   prod_loading:    { uz: "Yuklanmoqda...",    ru: "Загрузка...",        en: "Loading..." },
   prod_empty:      { uz: "Mahsulotlar topilmadi.", ru: "Товары не найдены.", en: "No products found." },
   prod_order:      { uz: "Buyurtma berish",   ru: "Заказать",           en: "Order" },
+  prod_details:    { uz: "Batafsil",          ru: "Подробнее",          en: "Details" },
 
   /* ── Login / Register ── */
   login_title:     { uz: "Tizimga kirish",    ru: "Вход в систему",     en: "Sign in" },

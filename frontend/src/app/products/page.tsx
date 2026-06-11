@@ -54,9 +54,12 @@ function getDesc(p: Product, lang: Lang): string {
 
 /* ========================= PRODUCT CARD ========================= */
 
-function ProductCard({ product, lang, orderLabel, onOrder }: {
-	product: Product; lang: Lang; orderLabel: string; onOrder: () => void;
+function ProductCard({ product, lang, onOrder }: {
+	product: Product; lang: Lang; onOrder: () => void;
 }) {
+	const t = useT();
+	const desc = getDesc(product, lang);
+
 	return (
 		<div className="pcard">
 			<div className="pcard-img-wrap">
@@ -71,8 +74,10 @@ function ProductCard({ product, lang, orderLabel, onOrder }: {
 				{product.sellPrice > 0 && (
 					<p className="pcard-price">{formatUZS(product.sellPrice)}</p>
 				)}
+				{desc && <p className="pcard-desc">{desc}</p>}
 				<div className="pcard-actions">
-					<button className="pcard-buy" onClick={onOrder}>{orderLabel}</button>
+					<button className="pcard-buy" onClick={onOrder}>{t("prod_order")}</button>
+					<button className="pcard-details">{t("prod_details") || "Подробнее"}</button>
 				</div>
 			</div>
 		</div>
@@ -190,7 +195,6 @@ function CatalogPage() {
 									key={p.id}
 									product={p}
 									lang={lang}
-									orderLabel={t("prod_order")}
 									onOrder={() => handleOrder(p)}
 								/>
 							))
