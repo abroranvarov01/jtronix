@@ -79,6 +79,73 @@ function ProductCard({ product, lang, orderLabel, onOrder }: {
 	);
 }
 
+/* ========================= CATALOG MEGA PANEL ========================= */
+
+function CatalogPanel({
+	categories, products, lang, selectedType, onSelect, onClose,
+}: {
+	categories: Category[];
+	products: Product[];
+	lang: Lang;
+	selectedType: string | null;
+	onSelect: (slug: string | null) => void;
+	onClose: () => void;
+}) {
+	const [hoveredSlug, setHoveredSlug] = useState<string | null>(
+		selectedType ?? (categories[0]?.slug ?? null)
+	);
+
+	const previewProducts = useMemo(() =>
+		products.filter((p) => p.type === hoveredSlug).slice(0, 9),
+		[products, hoveredSlug]
+	);
+
+	return (
+		<div className="cat-mega-panel">
+			{/* Left: categories list */}
+			<div className="cat-mega-left">
+				{categories.map((cat) => (
+					<button
+						key={cat.id}
+						className={`cat-mega-item${hoveredSlug === cat.slug ? " hovered" : ""}${selectedType === cat.slug ? " active" : ""}`}
+						onMouseEnter={() => setHoveredSlug(cat.slug)}
+						onClick={() => { onSelect(cat.slug); onClose(); }}
+					>
+						{cat.name}
+					</button>
+				))}
+			</div>
+
+			{/* Divider */}
+			<div className="cat-mega-divider" />
+
+			{/* Right: preview products for hovered category */}
+			<div className="cat-mega-right">
+				{previewProducts.length > 0 ? (
+					<div className="cat-mega-grid">
+						{previewProducts.map((p) => (
+							<button
+								key={p.id}
+								className="cat-mega-product"
+								onClick={() => { onSelect(hoveredSlug); onClose(); }}
+							>
+								{p.image ? (
+									<img src={imgUrl(p.image)} alt={getName(p, lang)} className="cat-mega-img" />
+								) : (
+									<div className="cat-mega-img-ph" />
+								)}
+								<span className="cat-mega-name">{getName(p, lang)}</span>
+							</button>
+						))}
+					</div>
+				) : (
+					<p className="cat-mega-empty">—</p>
+				)}
+			</div>
+		</div>
+	);
+}
+
 /* ========================= CATALOG PAGE ========================= */
 
 export default function CatalogPageWrapper() {
@@ -100,6 +167,8 @@ function CatalogPage() {
 
 	const [selectedType, setSelectedType] = useState<string | null>(searchParams.get("type"));
 	const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+	const [catalogOpen, setCatalogOpen] = useState(false);
+	const catalogRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		Promise.all([
@@ -115,6 +184,16 @@ function CatalogPage() {
 		setSearchQuery(searchParams.get("q") || "");
 	}, [searchParams]);
 
+	useEffect(() => {
+		function onClickOutside(e: MouseEvent) {
+			if (catalogRef.current && !catalogRef.current.contains(e.target as Node)) {
+				setCatalogOpen(false);
+			}
+		}
+		document.addEventListener("mousedown", onClickOutside);
+		return () => document.removeEventListener("mousedown", onClickOutside);
+	}, []);
+
 	const filtered = useMemo(() => {
 		return products.filter((p) => {
 			const typeOk = !selectedType || p.type === selectedType;
@@ -128,19 +207,6 @@ function CatalogPage() {
 
 	const activeCategory = categories.find((c) => c.slug === selectedType);
 
-	const [catalogOpen, setCatalogOpen] = useState(false);
-	const catalogRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		function onClickOutside(e: MouseEvent) {
-			if (catalogRef.current && !catalogRef.current.contains(e.target as Node)) {
-				setCatalogOpen(false);
-			}
-		}
-		document.addEventListener("mousedown", onClickOutside);
-		return () => document.removeEventListener("mousedown", onClickOutside);
-	}, []);
-
 	const handleOrder = (product: Product) => {
 		const adminUsername = process.env.NEXT_PUBLIC_ADMIN_USER_NAME;
 		const msg = `Assalomu alaykum! Mahsulot bo'yicha so'rov:\n🛍 ${getName(product, "uz")}\n💰 ${formatUZS(product.sellPrice)}`;
@@ -151,106 +217,91 @@ function CatalogPage() {
 		<>
 			<Navbar />
 
-			<div className="catalog-page">
-				{/* Left: category list — desktop sidebar */}
-				<aside className="catalog-aside">
-					<h3 className="catalog-aside-title">{t("prod_categories")}</h3>
+			{/* ── Top search bar ── */}
+			<div className="catalog-topbar-wrap" ref={catalogRef}>
+				<div className="catalog-topbar">
+					{/* Catalog button */}
 					<button
-						className={`cat-link${!selectedType ? " active" : ""}`}
-						onClick={() => setSelectedType(null)}
+						className={`cat-btn${catalogOpen ? " open" : ""}`}
+						onClick={() => setCatalogOpen((v) => !v)}
 					>
-						{t("prod_all")}
-					</button>
-					{categories.map((cat) => (
-						<button
-							key={cat.id}
-							className={`cat-link${selectedType === cat.slug ? " active" : ""}`}
-							onClick={() => setSelectedType(cat.slug)}
-						>
-							{cat.name}
-						</button>
-					))}
-				</aside>
-
-				{/* Right: products */}
-				<main className="catalog-main">
-					<div className="catalog-toprow">
-						<h2 className="catalog-heading">
-							{activeCategory ? activeCategory.name : t("prod_all_products")}
-						</h2>
-					</div>
-
-					{/* Search + Catalog button row */}
-					<div className="catalog-search-row">
-						<div className="catalog-search-bar" ref={catalogRef}>
-							{/* Catalog button */}
-							<div className="cat-dropdown-wrap">
-								<button
-									className={`cat-dropdown-btn${catalogOpen ? " open" : ""}`}
-									onClick={() => setCatalogOpen((v) => !v)}
-									aria-expanded={catalogOpen}
-								>
-									<svg width="18" height="14" viewBox="0 0 18 14" fill="none">
-										<rect y="0" width="18" height="2.5" rx="1.25" fill="currentColor"/>
-										<rect y="5.75" width="13" height="2.5" rx="1.25" fill="currentColor"/>
-										<rect y="11.5" width="9" height="2.5" rx="1.25" fill="currentColor"/>
-									</svg>
-									<span>{t("prod_categories")}</span>
-									<svg className="cat-dropdown-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none">
-										<path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-									</svg>
-								</button>
-
-								{catalogOpen && (
-									<div className="cat-dropdown-panel">
-										<button
-											className={`cat-dropdown-item${!selectedType ? " active" : ""}`}
-											onClick={() => { setSelectedType(null); setCatalogOpen(false); }}
-										>
-											{t("prod_all")}
-										</button>
-										{categories.map((cat) => (
-											<button
-												key={cat.id}
-												className={`cat-dropdown-item${selectedType === cat.slug ? " active" : ""}`}
-												onClick={() => { setSelectedType(cat.slug); setCatalogOpen(false); }}
-											>
-												{cat.name}
-											</button>
-										))}
-									</div>
-								)}
-							</div>
-
-							<input
-								type="text"
-								className="catalog-search-input"
-								placeholder={t("prod_search")}
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-							/>
-						</div>
-					</div>
-
-					{/* Grid */}
-					<div className="catalog-grid">
-						{loading ? (
-							<p className="catalog-status">{t("prod_loading")}</p>
-						) : filtered.length === 0 ? (
-							<p className="catalog-status">{t("prod_empty")}</p>
+						{catalogOpen ? (
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+								<path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+							</svg>
 						) : (
-							filtered.map((p) => (
-								<ProductCard
-									key={p.id}
-									product={p}
-									lang={lang}
-									orderLabel={t("prod_order")}
-									onOrder={() => handleOrder(p)}
-								/>
-							))
+							<svg width="18" height="14" viewBox="0 0 18 14" fill="none">
+								<rect y="0" width="18" height="2.5" rx="1.25" fill="currentColor"/>
+								<rect y="5.75" width="13" height="2.5" rx="1.25" fill="currentColor"/>
+								<rect y="11.5" width="9" height="2.5" rx="1.25" fill="currentColor"/>
+							</svg>
 						)}
+						<span>{t("prod_categories")}</span>
+					</button>
+
+					{/* Search input */}
+					<div className="cat-searchbox">
+						<svg className="cat-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+							<circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.8"/>
+							<path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+						</svg>
+						<input
+							type="text"
+							className="cat-search-input"
+							placeholder={t("prod_search")}
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
 					</div>
-				</main>
+
+					{/* Search button */}
+					<button className="cat-search-btn" onClick={() => setCatalogOpen(false)}>
+						{t("prod_search_btn") || "Поиск"}
+					</button>
+				</div>
+
+				{/* Mega panel */}
+				{catalogOpen && categories.length > 0 && (
+					<CatalogPanel
+						categories={categories}
+						products={products}
+						lang={lang}
+						selectedType={selectedType}
+						onSelect={setSelectedType}
+						onClose={() => setCatalogOpen(false)}
+					/>
+				)}
+			</div>
+
+			{/* ── Active filter chip ── */}
+			{activeCategory && (
+				<div className="catalog-filter-chip-row">
+					<div className="catalog-filter-chip">
+						{activeCategory.name}
+						<button className="catalog-filter-chip-x" onClick={() => setSelectedType(null)}>×</button>
+					</div>
+				</div>
+			)}
+
+			{/* ── Products grid ── */}
+			<div className="catalog-content">
+				<div className="catalog-grid">
+					{loading ? (
+						<p className="catalog-status">{t("prod_loading")}</p>
+					) : filtered.length === 0 ? (
+						<p className="catalog-status">{t("prod_empty")}</p>
+					) : (
+						filtered.map((p) => (
+							<ProductCard
+								key={p.id}
+								product={p}
+								lang={lang}
+								orderLabel={t("prod_order")}
+								onOrder={() => handleOrder(p)}
+							/>
+						))
+					)}
+				</div>
 			</div>
 		</>
 	);

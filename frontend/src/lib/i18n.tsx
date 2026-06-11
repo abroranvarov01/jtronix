@@ -205,6 +205,7 @@ const t = {
   prod_categories: { uz: "Kategoriyalar",     ru: "Категории",         en: "Categories" },
   prod_all_products:{ uz: "Barcha mahsulotlar", ru: "Все товары",      en: "All products" },
   prod_search:     { uz: "Mahsulot qidirish...", ru: "Поиск товара...", en: "Search product..." },
+  prod_search_btn: { uz: "Qidirish",            ru: "Поиск",              en: "Search" },
   prod_loading:    { uz: "Yuklanmoqda...",    ru: "Загрузка...",        en: "Loading..." },
   prod_empty:      { uz: "Mahsulotlar topilmadi.", ru: "Товары не найдены.", en: "No products found." },
   prod_order:      { uz: "Buyurtma berish",   ru: "Заказать",           en: "Order" },
