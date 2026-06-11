@@ -246,235 +246,85 @@
 .product-price  { font-size: 18px; font-weight: 700; color: #34d399; margin: 6px 0; }
 .product-seller { font-size: 12px; color: #64748b; margin-bottom: 8px; }
 
-/* ── Catalog top bar ── */
-.catalog-topbar-wrap {
+/* ── New catalog page layout ── */
+.catalog-page {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 160px 24px 30px;
+    gap: 28px;
+    min-height: 80vh;
+}
+
+.catalog-aside {
+    width: 230px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     position: sticky;
-    top: 72px;
-    z-index: 50;
-    background: #0b1628;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-.catalog-topbar {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 12px 24px;
-    display: flex;
-    align-items: center;
-    gap: 0;
-}
-
-/* Каталог button */
-.cat-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 22px;
-    height: 48px;
-    background: #22c55e;
-    border: none;
-    border-radius: 10px 0 0 10px;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-    white-space: nowrap;
-    font-family: inherit;
-    flex-shrink: 0;
-}
-.cat-btn:hover  { background: #16a34a; }
-.cat-btn.open   { background: #15803d; border-radius: 10px 0 0 0; }
-
-/* Search box */
-.cat-searchbox {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    height: 48px;
-    padding: 0 16px;
-    background: #fff;
-    border-top: 1px solid #e2e8f0;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.cat-search-icon { color: #94a3b8; flex-shrink: 0; }
-
-.cat-search-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    outline: none;
-    font-size: 15px;
-    color: #1e293b;
-    font-family: inherit;
-}
-.cat-search-input::placeholder { color: #94a3b8; }
-
-/* Search button */
-.cat-search-btn {
-    height: 48px;
-    padding: 0 28px;
-    background: #1e293b;
-    border: none;
-    border-radius: 0 10px 10px 0;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-    white-space: nowrap;
-    font-family: inherit;
-    flex-shrink: 0;
-}
-.cat-search-btn:hover { background: #334155; }
-
-/* ── Mega panel ── */
-.cat-mega-panel {
-    display: flex;
-    max-width: 1400px;
-    margin: 0 auto;
-    background: #fff;
-    color: #1e293b;
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    overflow: hidden;
-    animation: megaPanelIn 0.18s ease;
-    max-height: 480px;
-}
-
-@keyframes megaPanelIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Left: categories list */
-.cat-mega-left {
-    width: 240px;
-    flex-shrink: 0;
+    top: 100px;
+    height: fit-content;
+    max-height: calc(100vh - 120px);
     overflow-y: auto;
-    padding: 8px 0;
-    background: #f8fafc;
-    border-right: 1px solid #e2e8f0;
 }
 
-.cat-mega-item {
+.catalog-aside-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+    padding-left: 12px;
+}
+
+.cat-link {
     display: block;
     width: 100%;
     text-align: left;
-    padding: 12px 20px;
+    padding: 11px 16px;
     border: none;
+    border-radius: 8px;
     background: transparent;
-    color: #374151;
+    color: #94a3b8;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.12s, color 0.12s;
+    transition: background 0.15s, color 0.15s;
     font-family: inherit;
-    border-left: 3px solid transparent;
-}
-.cat-mega-item:hover  { background: #f0fdf4; color: #16a34a; border-left-color: #22c55e; }
-.cat-mega-item.hovered { background: #dcfce7; color: #15803d; border-left-color: #22c55e; font-weight: 600; }
-.cat-mega-item.active  { color: #15803d; font-weight: 700; }
-
-/* Divider */
-.cat-mega-divider {
-    width: 1px;
-    background: #e2e8f0;
-    flex-shrink: 0;
 }
 
-/* Right: product preview */
-.cat-mega-right {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 24px;
-}
+.cat-link:hover { background: rgba(34,197,94,0.08); color: #22c55e; }
+.cat-link.active { background: rgba(34,197,94,0.15); color: #22c55e; font-weight: 600; border-left: 3px solid #22c55e; }
 
-.cat-mega-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 16px;
-}
+.catalog-main { flex: 1; min-width: 0; }
 
-.cat-mega-product {
+.catalog-toprow {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    padding: 12px 8px;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    background: transparent;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-    font-family: inherit;
-    text-align: center;
-}
-.cat-mega-product:hover { border-color: #22c55e; background: #f0fdf4; }
-
-.cat-mega-img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-}
-.cat-mega-img-ph {
-    width: 80px;
-    height: 80px;
-    background: #e2e8f0;
-    border-radius: 8px;
-}
-.cat-mega-name {
-    font-size: 12px;
-    color: #374151;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.cat-mega-empty { color: #94a3b8; padding: 40px; text-align: center; }
-
-/* ── Active filter chip ── */
-.catalog-filter-chip-row {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 12px 24px 0;
-    display: flex;
-    gap: 8px;
+    margin-bottom: 16px;
     flex-wrap: wrap;
+    gap: 12px;
 }
 
-.catalog-filter-chip {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    background: rgba(34,197,94,0.15);
-    border: 1px solid rgba(34,197,94,0.4);
-    border-radius: 20px;
-    color: #22c55e;
-    font-size: 13px;
-    font-weight: 600;
+.catalog-heading { font-size: 28px; font-weight: 700; color: #fff; }
+
+.catalog-search-row { margin-bottom: 24px; }
+
+.catalog-search-input {
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
 }
 
-.catalog-filter-chip-x {
-    border: none;
-    background: transparent;
-    color: #22c55e;
-    font-size: 18px;
-    line-height: 1;
-    cursor: pointer;
-    padding: 0 2px;
-}
-
-/* ── Content area ── */
-.catalog-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px 24px 60px;
-}
+.catalog-search-input::placeholder { color: #64748b; }
+.catalog-search-input:focus { border-color: #22c55e; }
 
 .catalog-status { color: #64748b; text-align: center; padding: 40px 0; }
 
@@ -573,26 +423,12 @@
 }
 
 @media (max-width: 900px) {
-    .catalog-topbar { padding: 10px 12px; }
-    .cat-btn span   { display: none; }
-    .cat-btn        { padding: 0 16px; gap: 6px; }
-    .cat-search-btn { padding: 0 16px; font-size: 14px; }
-    .catalog-content { padding: 16px 12px 40px; }
+    .catalog-page { flex-direction: column; padding: 120px 16px 30px; }
+    .catalog-aside { width: 100%; position: static; flex-direction: row; flex-wrap: wrap; gap: 6px; max-height: none; }
+    .catalog-aside-title { width: 100%; }
+    .cat-link { width: auto; padding: 8px 14px; font-size: 13px; }
     .catalog-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
     .pcard-img-wrap { height: 140px; }
-    .cat-mega-left  { width: 180px; }
-    .cat-mega-grid  { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-}
-
-@media (max-width: 600px) {
-    .catalog-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .pcard-body { padding: 10px 12px 12px; }
-    .pcard-name { font-size: 13px; }
-    .pcard-price { font-size: 15px; }
-    .pcard-buy  { font-size: 13px; padding: 8px 0; }
-    .cat-mega-panel { max-height: 360px; }
-    .cat-mega-left  { width: 140px; }
-    .cat-mega-item  { padding: 10px 12px; font-size: 13px; }
 }
 
 @media (max-width: 600px) {
