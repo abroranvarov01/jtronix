@@ -24,7 +24,7 @@ interface Category {
 }
 
 const FALLBACK: Category[] = [
-  { id: "fallback-0", name: "Petronix CNG Solutions", slug: "", image: "", order: 0 },
+  { id: "fallback-0", nameUz: "Petronix CNG Solutions", nameRu: "Petronix CNG Solutions", nameEn: "Petronix CNG Solutions", name: "Petronix CNG Solutions", slug: "", image: "", order: 0 },
 ];
 
 export default function CategoryBanner() {
