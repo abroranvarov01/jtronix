@@ -43,13 +43,13 @@ function formatUZS(usd: number): string {
 function getName(p: Product, lang: Lang): string {
 	if (lang === "ru" && p.nameRu) return p.nameRu;
 	if (lang === "en" && p.nameEn) return p.nameEn;
-	return p.nameUz || p.nameRu || p.nameEn;
+	return p.nameUz || p.nameRu || p.nameEn || "";
 }
 
 function getDesc(p: Product, lang: Lang): string {
 	if (lang === "ru" && p.descriptionRu) return p.descriptionRu;
 	if (lang === "en" && p.descriptionEn) return p.descriptionEn;
-	return p.descriptionUz || p.descriptionRu || p.descriptionEn;
+	return p.descriptionUz || p.descriptionRu || p.descriptionEn || "";
 }
 
 /* ========================= PRODUCT CARD ========================= */
