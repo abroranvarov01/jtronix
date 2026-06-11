@@ -27,8 +27,17 @@ interface Product {
 
 interface Category {
 	id: string;
+	nameUz: string;
+	nameRu: string;
+	nameEn: string;
 	name: string;
 	slug: string;
+}
+
+function getCatName(cat: Category, lang: Lang): string {
+	if (lang === "ru" && cat.nameRu) return cat.nameRu;
+	if (lang === "en" && cat.nameEn) return cat.nameEn;
+	return cat.nameUz || cat.nameRu || cat.nameEn || cat.name || "";
 }
 
 /* ========================= HELPERS ========================= */
@@ -159,7 +168,7 @@ function CatalogPage() {
 							className={`cat-link${selectedType === cat.slug ? " active" : ""}`}
 							onClick={() => setSelectedType(cat.slug)}
 						>
-							{cat.name}
+							{getCatName(cat, lang)}
 						</button>
 					))}
 				</aside>
@@ -168,7 +177,7 @@ function CatalogPage() {
 				<main className="catalog-main">
 					<div className="catalog-toprow">
 						<h2 className="catalog-heading">
-							{activeCategory ? activeCategory.name : t("prod_all_products")}
+							{activeCategory ? getCatName(activeCategory, lang) : t("prod_all_products")}
 						</h2>
 					</div>
 

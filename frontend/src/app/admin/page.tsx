@@ -27,6 +27,9 @@ interface Product {
 
 interface Category {
 	id: string;
+	nameUz: string;
+	nameRu: string;
+	nameEn: string;
 	name: string;
 	slug: string;
 	image: string;
@@ -44,7 +47,7 @@ const EMPTY_PRODUCT = {
 	wholesalePrice: 0,
 };
 
-const EMPTY_CATEGORY = { name: "", slug: "", image: "", order: 0 };
+const EMPTY_CATEGORY = { nameUz: "", nameRu: "", nameEn: "", name: "", slug: "", image: "", order: 0 };
 
 type Lang = "uz" | "ru" | "en";
 const LANGS: { key: Lang; label: string; flag: string }[] = [
@@ -178,7 +181,7 @@ export default function AdminPage() {
 
 	function startCatEdit(cat: Category) {
 		setEditingCatId(cat.id);
-		setCatForm({ name: cat.name, slug: cat.slug, image: cat.image, order: cat.order });
+		setCatForm({ nameUz: cat.nameUz || "", nameRu: cat.nameRu || "", nameEn: cat.nameEn || "", name: cat.name || "", slug: cat.slug, image: cat.image, order: cat.order });
 		setCatPreview(cat.image);
 		setShowCatForm(true);
 		window.scrollTo({ top: 0, behavior: "smooth" });
@@ -422,7 +425,7 @@ export default function AdminPage() {
 												</td>
 												<td>
 													<span className="adm-table-badge">
-														{categories.find((c) => c.slug === p.type)?.name || p.type}
+														{(() => { const c = categories.find((c) => c.slug === p.type); return c ? (c.nameUz || c.nameRu || c.nameEn || c.name) : p.type; })()}
 													</span>
 												</td>
 												<td className="adm-table-price">${p.sellPrice}</td>
@@ -475,9 +478,19 @@ export default function AdminPage() {
 									<form className="adm-form" onSubmit={handleCatSubmit}>
 										<div className="adm-form-grid">
 											<div className="adm-field">
-												<label>Nomi</label>
-												<input type="text" placeholder="Masalan: Klapanlar" value={catForm.name}
-													onChange={(e) => setCatForm((p) => ({ ...p, name: e.target.value }))} required />
+												<label>Nomi (UZ)</label>
+												<input type="text" placeholder="Masalan: Klapanlar" value={catForm.nameUz}
+													onChange={(e) => setCatForm((p) => ({ ...p, nameUz: e.target.value }))} required />
+											</div>
+											<div className="adm-field">
+												<label>Nomi (RU)</label>
+												<input type="text" placeholder="Например: Клапаны" value={catForm.nameRu}
+													onChange={(e) => setCatForm((p) => ({ ...p, nameRu: e.target.value }))} />
+											</div>
+											<div className="adm-field">
+												<label>Nomi (EN)</label>
+												<input type="text" placeholder="E.g.: Valves" value={catForm.nameEn}
+													onChange={(e) => setCatForm((p) => ({ ...p, nameEn: e.target.value }))} />
 											</div>
 											<div className="adm-field">
 												<label>Slug</label>
@@ -527,7 +540,7 @@ export default function AdminPage() {
 											</div>
 										)}
 										<div className="adm-cat-body">
-											<div className="adm-cat-name">{cat.name}</div>
+											<div className="adm-cat-name">{cat.nameUz || cat.nameRu || cat.nameEn || cat.name}</div>
 											<div className="adm-cat-meta">/{cat.slug} · #{cat.order}</div>
 										</div>
 										<div className="adm-cat-actions">

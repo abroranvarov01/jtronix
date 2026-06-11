@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { API_URL, imgUrl } from "@/lib/api";
-import { useT } from "@/lib/i18n";
+import { useT, useLang } from "@/lib/i18n";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -14,6 +14,9 @@ import "./CategoryBanner.css";
 
 interface Category {
   id: string;
+  nameUz: string;
+  nameRu: string;
+  nameEn: string;
   name: string;
   slug: string;
   image: string;
@@ -29,6 +32,13 @@ export default function CategoryBanner() {
   const [loaded, setLoaded] = useState(false);
   const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
   const t = useT();
+  const { lang } = useLang();
+
+  function getCatName(cat: Category): string {
+    if (lang === "ru" && cat.nameRu) return cat.nameRu;
+    if (lang === "en" && cat.nameEn) return cat.nameEn;
+    return cat.nameUz || cat.nameRu || cat.nameEn || cat.name || "";
+  }
 
   useEffect(() => {
     fetch(`${API_URL}/categories`)
@@ -87,7 +97,7 @@ export default function CategoryBanner() {
                   </div>
                 )}
                 <div className="cat-banner-overlay">
-                  <h2 className="cat-banner-title">{cat.name}</h2>
+                  <h2 className="cat-banner-title">{getCatName(cat)}</h2>
                   <span className="cat-banner-cta">{t("banner_cta")}</span>
                 </div>
               </Link>

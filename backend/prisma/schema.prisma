@@ -25,7 +25,10 @@ model User {
 
 model Category {
   id        String   @id @default(cuid())
-  name      String
+  nameUz    String   @default("")
+  nameRu    String   @default("")
+  nameEn    String   @default("")
+  name      String   @default("")
   slug      String   @unique
   image     String   @default("")
   order     Int      @default(0)
