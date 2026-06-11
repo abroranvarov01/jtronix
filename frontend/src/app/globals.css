@@ -2776,25 +2776,23 @@ text-decoration:none;
    CATEGORY BANNER  (main page)
    ============================================= */
 
+/* ── Category Banner (Swiper) ── */
 .cat-banner {
     position: relative;
     width: 100%;
     height: 480px;
-    overflow: hidden;
     background: #0b1a2e;
 }
 
-.cat-banner-track {
-    display: flex;
+.cat-swiper {
+    width: 100%;
     height: 100%;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
 }
 
 .cat-banner-slide {
-    flex: 0 0 100%;
     position: relative;
     display: block;
+    width: 100%;
     height: 100%;
     overflow: hidden;
     text-decoration: none;
@@ -2805,10 +2803,10 @@ text-decoration:none;
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.6s ease;
+    transition: transform 6s ease;
 }
 
-.cat-banner-slide:hover .cat-banner-img {
+.swiper-slide-active .cat-banner-img {
     transform: scale(1.04);
 }
 
@@ -2850,6 +2848,7 @@ text-decoration:none;
     justify-content: flex-end;
     padding-bottom: 72px;
     text-align: center;
+    z-index: 2;
 }
 
 .cat-banner-title {
@@ -2878,58 +2877,36 @@ text-decoration:none;
     border-color: #16a34a;
 }
 
-/* Nav buttons */
-.cat-banner-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255,255,255,0.12);
-    border: none;
-    color: #fff;
-    font-size: 36px;
-    line-height: 1;
+/* Swiper navigation arrows */
+.cat-swiper .swiper-button-prev,
+.cat-swiper .swiper-button-next {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-    z-index: 10;
+    background: rgba(255,255,255,0.12);
     backdrop-filter: blur(4px);
+    color: #fff;
+    transition: background 0.2s;
 }
-
-.cat-banner-btn:hover {
+.cat-swiper .swiper-button-prev:hover,
+.cat-swiper .swiper-button-next:hover {
     background: rgba(255,255,255,0.28);
 }
-
-.cat-banner-btn--prev { left: 20px; }
-.cat-banner-btn--next { right: 20px; }
-
-/* Dots */
-.cat-banner-dots {
-    position: absolute;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 10;
+.cat-swiper .swiper-button-prev::after,
+.cat-swiper .swiper-button-next::after {
+    font-size: 18px;
+    font-weight: 700;
 }
 
-.cat-banner-dot {
+/* Swiper pagination dots */
+.cat-swiper .swiper-pagination-bullet {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
-    border: none;
     background: rgba(255,255,255,0.4);
-    cursor: pointer;
+    opacity: 1;
     transition: background 0.2s, transform 0.2s;
-    padding: 0;
 }
-
-.cat-banner-dot.active {
+.cat-swiper .swiper-pagination-bullet-active {
     background: #22c55e;
     transform: scale(1.3);
 }
@@ -2938,7 +2915,15 @@ text-decoration:none;
     .cat-banner { height: 280px; }
     .cat-banner-title { font-size: 24px; }
     .cat-banner-overlay { padding-bottom: 56px; }
-    .cat-banner-btn { width: 38px; height: 38px; font-size: 24px; }
+    .cat-swiper .swiper-button-prev,
+    .cat-swiper .swiper-button-next {
+        width: 38px;
+        height: 38px;
+    }
+    .cat-swiper .swiper-button-prev::after,
+    .cat-swiper .swiper-button-next::after {
+        font-size: 14px;
+    }
 }
 
 /* =============================================

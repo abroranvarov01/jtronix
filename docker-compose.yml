@@ -41,7 +41,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: "http://localhost:3001/api"
+        NEXT_PUBLIC_API_URL: "http://${SERVER_HOST:-localhost}:3001/api"
     container_name: petronix_frontend
     restart: unless-stopped
     depends_on:
