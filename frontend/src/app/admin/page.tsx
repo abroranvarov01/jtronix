@@ -7,8 +7,6 @@ import ImageUpload from "@/components/ImageUpload";
 import { API_URL } from "@/lib/api";
 import { getToken, getUser, authHeaders, logout } from "@/lib/auth";
 
-/* ===================== TYPES ===================== */
-
 interface Product {
 	id: string;
 	nameUz: string;
@@ -35,18 +33,6 @@ interface Category {
 	order: number;
 }
 
-/* ===================== STATIC ===================== */
-
-const BRANDS = [
-	{ value: "kwangshin", label: "Kwangshin" },
-	{ value: "tianyi", label: "Tianyi" },
-	{ value: "sichuan", label: "Sichuan" },
-	{ value: "tianchen", label: "Tianchen" },
-	{ value: "farnova", label: "Farnova" },
-	{ value: "aspro", label: "Aspro" },
-	{ value: "graf", label: "Graf" },
-];
-
 const EMPTY_PRODUCT = {
 	nameUz: "", nameRu: "", nameEn: "",
 	descriptionUz: "", descriptionRu: "", descriptionEn: "",
@@ -61,18 +47,19 @@ const EMPTY_PRODUCT = {
 const EMPTY_CATEGORY = { name: "", slug: "", image: "", order: 0 };
 
 type Lang = "uz" | "ru" | "en";
-const LANG_LABELS: Record<Lang, string> = { uz: "O'zbek", ru: "Русский", en: "English" };
-
-/* ===================== COMPONENT ===================== */
+const LANGS: { key: Lang; label: string; flag: string }[] = [
+	{ key: "uz", label: "O'zbek", flag: "🇺🇿" },
+	{ key: "ru", label: "Русский", flag: "🇷🇺" },
+	{ key: "en", label: "English", flag: "🇬🇧" },
+];
 
 export default function AdminPage() {
 	const router = useRouter();
-
 	const [user, setUser] = useState<{ id: string; email: string; role: string } | null>(null);
 	const [activeTab, setActiveTab] = useState<"products" | "categories">("products");
 	const [activeLang, setActiveLang] = useState<Lang>("uz");
+	const [showForm, setShowForm] = useState(false);
 
-	// Products
 	const [products, setProducts] = useState<Product[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [form, setForm] = useState(EMPTY_PRODUCT);
@@ -80,27 +67,23 @@ export default function AdminPage() {
 	const [loading, setLoading] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [searchQuery, setSearchQuery] = useState("");
 
-	// Categories
 	const [catForm, setCatForm] = useState(EMPTY_CATEGORY);
 	const [editingCatId, setEditingCatId] = useState<string | null>(null);
 	const [catSubmitting, setCatSubmitting] = useState(false);
 	const [catError, setCatError] = useState<string | null>(null);
 	const [catPreview, setCatPreview] = useState("");
 	const [catLoading, setCatLoading] = useState(false);
+	const [showCatForm, setShowCatForm] = useState(false);
 
-	/* ---- auth check ---- */
 	useEffect(() => {
 		const token = getToken();
 		const u = getUser();
-		if (!token || !u) {
-			router.push("/login");
-			return;
-		}
+		if (!token || !u) { router.push("/login"); return; }
 		setUser(u);
 	}, [router]);
 
-	/* ---- loaders ---- */
 	async function loadProducts() {
 		setLoading(true);
 		try {
@@ -124,7 +107,6 @@ export default function AdminPage() {
 		if (user) { loadProducts(); loadCategories(); }
 	}, [user]);
 
-	/* ---- product CRUD ---- */
 	async function handleSubmit(e: FormEvent) {
 		e.preventDefault();
 		setSubmitting(true);
@@ -138,6 +120,7 @@ export default function AdminPage() {
 			if (!res.ok) { setError(data.message ?? "Xatolik"); return; }
 			setForm(EMPTY_PRODUCT);
 			setEditingId(null);
+			setShowForm(false);
 			await loadProducts();
 		} catch { setError("Server xatosi"); }
 		finally { setSubmitting(false); }
@@ -157,15 +140,16 @@ export default function AdminPage() {
 			brand: p.brand, type: p.type, image: p.image,
 			costPrice: p.costPrice, sellPrice: p.sellPrice, wholesalePrice: p.wholesalePrice,
 		});
+		setShowForm(true);
 		window.scrollTo({ top: 0, behavior: "smooth" });
 	}
 
 	function cancelEdit() {
 		setEditingId(null);
 		setForm(EMPTY_PRODUCT);
+		setShowForm(false);
 	}
 
-	/* ---- category CRUD ---- */
 	async function handleCatSubmit(e: FormEvent) {
 		e.preventDefault();
 		setCatSubmitting(true);
@@ -180,6 +164,7 @@ export default function AdminPage() {
 			setCatForm(EMPTY_CATEGORY);
 			setCatPreview("");
 			setEditingCatId(null);
+			setShowCatForm(false);
 			await loadCategories();
 		} catch { setCatError("Server xatosi"); }
 		finally { setCatSubmitting(false); }
@@ -195,6 +180,7 @@ export default function AdminPage() {
 		setEditingCatId(cat.id);
 		setCatForm({ name: cat.name, slug: cat.slug, image: cat.image, order: cat.order });
 		setCatPreview(cat.image);
+		setShowCatForm(true);
 		window.scrollTo({ top: 0, behavior: "smooth" });
 	}
 
@@ -202,289 +188,363 @@ export default function AdminPage() {
 		setEditingCatId(null);
 		setCatForm(EMPTY_CATEGORY);
 		setCatPreview("");
+		setShowCatForm(false);
 	}
 
-	/* ---- helpers ---- */
-	function handleLogout() {
-		logout();
-		router.push("/login");
-	}
+	function handleLogout() { logout(); router.push("/login"); }
 
 	const isAdmin = user?.role === "ADMIN";
+	const visibleProducts = isAdmin ? products : products.filter((p) => p.ownerId === user?.id);
 
-	// Для отображения: dealer видит только свои товары, admin — все
-	const visibleProducts = isAdmin
-		? products
-		: products.filter((p) => p.ownerId === user?.id);
+	const filteredProducts = searchQuery
+		? visibleProducts.filter((p) =>
+			(p.nameUz + p.nameRu + p.nameEn).toLowerCase().includes(searchQuery.toLowerCase())
+		)
+		: visibleProducts;
+
+	const langKey = (prefix: string) => `${prefix}${activeLang.charAt(0).toUpperCase() + activeLang.slice(1)}`;
 
 	if (!user) return null;
 
-	/* ============================== RENDER ============================== */
 	return (
-		<div className="admin-wrapper">
-			<header className="admin-header">
-				<div className="admin-header-left">
-					<div className="admin-logo">
-						<img src="/favicon.png" alt="Logo" className="admin-logo-img" />
+		<div className="adm">
+			{/* Sidebar */}
+			<aside className="adm-side">
+				<div className="adm-side-top">
+					<div className="adm-brand">
+						<div className="adm-brand-icon">P</div>
+						<div>
+							<div className="adm-brand-name">Petronix</div>
+							<div className="adm-brand-sub">Admin Panel</div>
+						</div>
 					</div>
-					<div>
-						<h1 className="admin-title">Admin Panel</h1>
-						<p className="admin-subtitle">
-							{user.email} · {user.role === "ADMIN" ? "Administrator" : "Diller"}
-						</p>
-					</div>
-				</div>
-				<button className="btn-logout" onClick={handleLogout}>Chiqish →</button>
-			</header>
 
-			{/* Tabs */}
-			<div className="admin-tabs">
-				<button className={`admin-tab${activeTab === "products" ? " active" : ""}`} onClick={() => setActiveTab("products")}>
-					📦 Mahsulotlar
-				</button>
-				{isAdmin && (
-					<button className={`admin-tab${activeTab === "categories" ? " active" : ""}`} onClick={() => setActiveTab("categories")}>
-						🗂 Kategoriyalar
+					<nav className="adm-nav">
+						<button
+							className={`adm-nav-item${activeTab === "products" ? " active" : ""}`}
+							onClick={() => setActiveTab("products")}
+						>
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+							Mahsulotlar
+						</button>
+						{isAdmin && (
+							<button
+								className={`adm-nav-item${activeTab === "categories" ? " active" : ""}`}
+								onClick={() => setActiveTab("categories")}
+							>
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+								Kategoriyalar
+							</button>
+						)}
+					</nav>
+				</div>
+
+				<div className="adm-side-bottom">
+					<div className="adm-user">
+						<div className="adm-user-avatar">{user.email[0].toUpperCase()}</div>
+						<div className="adm-user-info">
+							<div className="adm-user-email">{user.email}</div>
+							<div className="adm-user-role">{user.role === "ADMIN" ? "Administrator" : "Diller"}</div>
+						</div>
+					</div>
+					<button className="adm-logout" onClick={handleLogout}>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+						Chiqish
 					</button>
-				)}
-			</div>
+				</div>
+			</aside>
 
-			{/* =================== PRODUCTS TAB =================== */}
-			{activeTab === "products" && (
-				<div className="admin-grid">
-					<section className="admin-card">
-						<div className="card-label">
-							{editingId ? "✏️ Tahrirlash" : "＋ Yangi mahsulot"}
-						</div>
-
-						{/* Language tabs */}
-						<div className="lang-tabs">
-							{(["uz", "ru", "en"] as Lang[]).map((l) => (
-								<button key={l} className={`lang-tab${activeLang === l ? " active" : ""}`} onClick={() => setActiveLang(l)}>
-									{LANG_LABELS[l]}
+			{/* Main content */}
+			<main className="adm-main">
+				{/* =================== PRODUCTS =================== */}
+				{activeTab === "products" && (
+					<>
+						<div className="adm-toolbar">
+							<div>
+								<h1 className="adm-page-title">Mahsulotlar</h1>
+								<p className="adm-page-sub">{visibleProducts.length} ta mahsulot</p>
+							</div>
+							<div className="adm-toolbar-actions">
+								<div className="adm-search">
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+									<input
+										type="text"
+										placeholder="Qidirish..."
+										value={searchQuery}
+										onChange={(e) => setSearchQuery(e.target.value)}
+									/>
+								</div>
+								<button
+									className="adm-btn-add"
+									onClick={() => { setShowForm(true); setEditingId(null); setForm(EMPTY_PRODUCT); }}
+								>
+									<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+									Qo'shish
 								</button>
-							))}
+							</div>
 						</div>
 
-						<form className="admin-form" onSubmit={handleSubmit}>
-							{/* Name per language */}
-							<div className="field-group">
-								<label className="field-label">Nomi ({LANG_LABELS[activeLang]})</label>
-								<input
-									type="text"
-									className="field-input"
-									placeholder={`Mahsulot nomi (${activeLang})`}
-									value={(form as any)[`name${activeLang.charAt(0).toUpperCase() + activeLang.slice(1)}`]}
-									onChange={(e) => {
-										const key = `name${activeLang.charAt(0).toUpperCase() + activeLang.slice(1)}`;
-										setForm((prev) => ({ ...prev, [key]: e.target.value }));
-									}}
-									required={activeLang === "uz"}
-								/>
-							</div>
+						{/* Product form modal */}
+						{showForm && (
+							<div className="adm-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) cancelEdit(); }}>
+								<div className="adm-modal">
+									<div className="adm-modal-header">
+										<h2>{editingId ? "Mahsulotni tahrirlash" : "Yangi mahsulot"}</h2>
+										<button className="adm-modal-close" onClick={cancelEdit}>
+											<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+										</button>
+									</div>
 
-							{/* Description per language */}
-							<div className="field-group">
-								<label className="field-label">Tavsif ({LANG_LABELS[activeLang]})</label>
-								<textarea
-									className="field-input field-textarea"
-									placeholder={`Tavsif (${activeLang})`}
-									rows={3}
-									value={(form as any)[`description${activeLang.charAt(0).toUpperCase() + activeLang.slice(1)}`]}
-									onChange={(e) => {
-										const key = `description${activeLang.charAt(0).toUpperCase() + activeLang.slice(1)}`;
-										setForm((prev) => ({ ...prev, [key]: e.target.value }));
-									}}
-								/>
-							</div>
+									{/* Lang tabs */}
+									<div className="adm-lang-tabs">
+										{LANGS.map((l) => (
+											<button
+												key={l.key}
+												className={`adm-lang-tab${activeLang === l.key ? " active" : ""}`}
+												onClick={() => setActiveLang(l.key)}
+											>
+												<span>{l.flag}</span> {l.label}
+											</button>
+										))}
+									</div>
 
-							{/* Brands + Category */}
-							<div className="field-row">
-								<div className="field-group">
-									<label className="field-label">Brend</label>
-									<div className="checkbox-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-										{BRANDS.map((b) => (
-											<label key={b.value} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+									<form className="adm-form" onSubmit={handleSubmit}>
+										<div className="adm-form-grid">
+											<div className="adm-field">
+												<label>Nomi ({LANGS.find(l => l.key === activeLang)?.label})</label>
 												<input
-													type="checkbox"
-													checked={form.brand.includes(b.value)}
-													onChange={(e) => {
-														const checked = e.target.checked;
-														setForm((prev) => ({
-															...prev,
-															brand: checked ? [...prev.brand, b.value] : prev.brand.filter((x) => x !== b.value),
-														}));
-													}}
+													type="text"
+													placeholder={`Mahsulot nomi`}
+													value={(form as any)[langKey("name")]}
+													onChange={(e) => setForm((p) => ({ ...p, [langKey("name")]: e.target.value }))}
+													required={activeLang === "uz"}
 												/>
-												{b.label}
-											</label>
-										))}
-									</div>
+											</div>
+											<div className="adm-field">
+												<label>Kategoriya</label>
+												<select value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))} required>
+													<option value="">— tanlang —</option>
+													{categories.map((c) => (
+														<option key={c.id} value={c.slug}>{c.name}</option>
+													))}
+												</select>
+											</div>
+										</div>
+
+										<div className="adm-field">
+											<label>Tavsif ({LANGS.find(l => l.key === activeLang)?.label})</label>
+											<textarea
+												placeholder="Mahsulot tavsifi"
+												rows={3}
+												value={(form as any)[langKey("description")]}
+												onChange={(e) => setForm((p) => ({ ...p, [langKey("description")]: e.target.value }))}
+											/>
+										</div>
+
+										<div className="adm-prices">
+											<div className="adm-field">
+												<label>Tannarx (USD)</label>
+												<input type="number" step="0.01" min="0" value={form.costPrice || ""} placeholder="0.00"
+													onChange={(e) => setForm((p) => ({ ...p, costPrice: Number(e.target.value) }))} />
+											</div>
+											<div className="adm-field">
+												<label>Sotuv narxi (USD)</label>
+												<input type="number" step="0.01" min="0" value={form.sellPrice || ""} placeholder="0.00"
+													onChange={(e) => setForm((p) => ({ ...p, sellPrice: Number(e.target.value) }))} required />
+											</div>
+											<div className="adm-field">
+												<label>Optom narx (USD)</label>
+												<input type="number" step="0.01" min="0" value={form.wholesalePrice || ""} placeholder="0.00"
+													onChange={(e) => setForm((p) => ({ ...p, wholesalePrice: Number(e.target.value) }))} />
+											</div>
+										</div>
+
+										<div className="adm-field">
+											<label>Rasm</label>
+											<ImageUpload
+												value={form.image}
+												onChange={(path) => setForm((p) => ({ ...p, image: path }))}
+												onError={(msg) => setError(msg)}
+											/>
+										</div>
+
+										{error && <div className="adm-error">{error}</div>}
+
+										<div className="adm-form-actions">
+											<button type="button" className="adm-btn-cancel" onClick={cancelEdit}>Bekor qilish</button>
+											<button type="submit" className="adm-btn-save" disabled={submitting}>
+												{submitting ? "Saqlanmoqda..." : editingId ? "Yangilash" : "Qo'shish"}
+											</button>
+										</div>
+									</form>
 								</div>
-								<div className="field-group">
-									<label className="field-label">Kategoriya</label>
-									<select className="field-input" value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))} required>
-										<option value="">— tanlang —</option>
-										{categories.map((c) => (
-											<option key={c.id} value={c.slug}>{c.name}</option>
-										))}
-									</select>
-								</div>
 							</div>
+						)}
 
-							{/* Prices */}
-							<div className="field-group">
-								<label className="field-label">Narxlar (USD)</label>
-								<div className="price-row">
-									<div className="price-field">
-										<label>Tannarx</label>
-										<input type="number" step="0.01" min="0" className="field-input" value={form.costPrice || ""} placeholder="0.00"
-											onChange={(e) => setForm((p) => ({ ...p, costPrice: Number(e.target.value) }))} />
-									</div>
-									<div className="price-field">
-										<label>Sotuv narxi</label>
-										<input type="number" step="0.01" min="0" className="field-input" value={form.sellPrice || ""} placeholder="0.00"
-											onChange={(e) => setForm((p) => ({ ...p, sellPrice: Number(e.target.value) }))} required />
-									</div>
-									<div className="price-field">
-										<label>Optom narx</label>
-										<input type="number" step="0.01" min="0" className="field-input" value={form.wholesalePrice || ""} placeholder="0.00"
-											onChange={(e) => setForm((p) => ({ ...p, wholesalePrice: Number(e.target.value) }))} />
-									</div>
-								</div>
-							</div>
-
-							{/* Image */}
-							<div className="field-group">
-								<label className="field-label">Rasm</label>
-								<ImageUpload
-									value={form.image}
-									onChange={(path) => setForm((p) => ({ ...p, image: path }))}
-									onError={(msg) => setError(msg)}
-								/>
-							</div>
-
-							{error && <div className="error-banner">⚠ {error}</div>}
-
-							<div className="form-actions">
-								<button type="submit" className="btn-primary" disabled={submitting}>
-									{submitting ? "Saqlanmoqda..." : editingId ? "✓ Yangilash" : "+ Qo'shish"}
-								</button>
-								{editingId && (
-									<button type="button" className="btn-cancel" onClick={cancelEdit}>Bekor qilish</button>
-								)}
-							</div>
-						</form>
-					</section>
-
-					{/* Products list */}
-					<section className="admin-card">
-						<div className="card-label">
-							📦 Mahsulotlar <span className="count-badge">{visibleProducts.length}</span>
-						</div>
+						{/* Products table */}
 						{loading ? (
-							<div className="loading-state"><div className="spinner" /><span>Yuklanmoqda...</span></div>
-						) : visibleProducts.length === 0 ? (
-							<div className="empty-state">Mahsulotlar yo&#39;q</div>
-						) : (
-							<div className="product-list">
-								{visibleProducts.map((p) => (
-									<div key={p.id} className={`admin-product${editingId === p.id ? " is-editing" : ""}`}>
-										{p.image ? (
-											<img src={p.image} alt="" style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 8 }} />
-										) : (
-											<div className="product-icon">📦</div>
-										)}
-										<div className="product-info">
-											<span className="product-name">{p.nameUz || p.nameRu || p.nameEn}</span>
-											<span className="product-meta">
-												${p.sellPrice} · {categories.find((c) => c.slug === p.type)?.name || p.type}
-												{p.owner && ` · ${p.owner.name}`}
-											</span>
-										</div>
-										<div className="product-actions">
-											<button className="btn-edit" onClick={() => startEdit(p)}>✏</button>
-											<button className="btn-delete" onClick={() => handleDelete(p.id)}>✕</button>
-										</div>
-									</div>
-								))}
-							</div>
-						)}
-					</section>
-				</div>
-			)}
-
-			{/* =================== CATEGORIES TAB (admin only) =================== */}
-			{activeTab === "categories" && isAdmin && (
-				<div className="admin-grid">
-					<section className="admin-card">
-						<div className="card-label">
-							{editingCatId ? "✏️ Kategoriyani tahrirlash" : "＋ Yangi kategoriya"}
-						</div>
-						<form className="admin-form" onSubmit={handleCatSubmit}>
-							<div className="field-group">
-								<label className="field-label">Nomi</label>
-								<input type="text" className="field-input" placeholder="Masalan: Klapanlar" value={catForm.name}
-									onChange={(e) => setCatForm((p) => ({ ...p, name: e.target.value }))} required />
-							</div>
-							<div className="field-group">
-								<label className="field-label">Slug</label>
-								<input type="text" className="field-input" placeholder="Masalan: klapanlar" value={catForm.slug}
-									onChange={(e) => setCatForm((p) => ({ ...p, slug: e.target.value }))} required />
-								<span style={{ fontSize: 12, color: "#94a3b8" }}>Lotin harflari, raqamlar va _</span>
-							</div>
-							<div className="field-group">
-								<label className="field-label">Tartib</label>
-								<input type="number" className="field-input" value={catForm.order} min={0}
-									onChange={(e) => setCatForm((p) => ({ ...p, order: Number(e.target.value) }))} />
-							</div>
-							<div className="field-group">
-								<label className="field-label">Banner rasmi</label>
-								<ImageUpload value={catForm.image}
-									onChange={(path) => { setCatForm((p) => ({ ...p, image: path })); setCatPreview(path); }}
-									onError={(msg) => setCatError(msg)} />
-							</div>
-							{catPreview && <div className="preview-box"><img src={catPreview} alt="" className="preview-img" /></div>}
-							{catError && <div className="error-banner">⚠ {catError}</div>}
-							<div className="form-actions">
-								<button type="submit" className="btn-primary" disabled={catSubmitting}>
-									{catSubmitting ? "Saqlanmoqda..." : editingCatId ? "✓ Yangilash" : "+ Qo'shish"}
+							<div className="adm-loading"><div className="adm-spinner" />Yuklanmoqda...</div>
+						) : filteredProducts.length === 0 ? (
+							<div className="adm-empty">
+								<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+								<p>{searchQuery ? "Topilmadi" : "Mahsulotlar yo'q"}</p>
+								<button className="adm-btn-add" onClick={() => { setShowForm(true); setEditingId(null); setForm(EMPTY_PRODUCT); }}>
+									Birinchi mahsulotni qo'shing
 								</button>
-								{editingCatId && <button type="button" className="btn-cancel" onClick={cancelCatEdit}>Bekor qilish</button>}
 							</div>
-						</form>
-					</section>
-
-					<section className="admin-card">
-						<div className="card-label">🗂 Kategoriyalar <span className="count-badge">{categories.length}</span></div>
-						{catLoading ? (
-							<div className="loading-state"><div className="spinner" /><span>Yuklanmoqda...</span></div>
-						) : categories.length === 0 ? (
-							<div className="empty-state">Kategoriyalar yo&#39;q</div>
 						) : (
-							<div className="product-list">
-								{categories.map((cat) => (
-									<div key={cat.id} className={`admin-product${editingCatId === cat.id ? " is-editing" : ""}`}>
-										{cat.image ? (
-											<img src={cat.image} alt={cat.name} style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 8 }} />
-										) : (
-											<div className="product-icon">🗂</div>
-										)}
-										<div className="product-info">
-											<span className="product-name">{cat.name}</span>
-											<span className="product-meta">slug: {cat.slug} · tartib: {cat.order}</span>
+							<div className="adm-table-wrap">
+								<table className="adm-table">
+									<thead>
+										<tr>
+											<th>Rasm</th>
+											<th>Nomi</th>
+											<th>Kategoriya</th>
+											<th>Narx</th>
+											{isAdmin && <th>Egasi</th>}
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										{filteredProducts.map((p) => (
+											<tr key={p.id} className={editingId === p.id ? "is-editing" : ""}>
+												<td>
+													{p.image ? (
+														<img src={p.image} alt="" className="adm-table-img" />
+													) : (
+														<div className="adm-table-img-ph">
+															<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+														</div>
+													)}
+												</td>
+												<td>
+													<div className="adm-table-name">{p.nameUz || p.nameRu || p.nameEn}</div>
+												</td>
+												<td>
+													<span className="adm-table-badge">
+														{categories.find((c) => c.slug === p.type)?.name || p.type}
+													</span>
+												</td>
+												<td className="adm-table-price">${p.sellPrice}</td>
+												{isAdmin && <td className="adm-table-owner">{p.owner?.name || "—"}</td>}
+												<td>
+													<div className="adm-table-actions">
+														<button className="adm-action-btn edit" onClick={() => startEdit(p)} title="Tahrirlash">
+															<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+														</button>
+														<button className="adm-action-btn delete" onClick={() => handleDelete(p.id)} title="O'chirish">
+															<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+														</button>
+													</div>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						)}
+					</>
+				)}
+
+				{/* =================== CATEGORIES =================== */}
+				{activeTab === "categories" && isAdmin && (
+					<>
+						<div className="adm-toolbar">
+							<div>
+								<h1 className="adm-page-title">Kategoriyalar</h1>
+								<p className="adm-page-sub">{categories.length} ta kategoriya</p>
+							</div>
+							<button
+								className="adm-btn-add"
+								onClick={() => { setShowCatForm(true); setEditingCatId(null); setCatForm(EMPTY_CATEGORY); setCatPreview(""); }}
+							>
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+								Qo'shish
+							</button>
+						</div>
+
+						{showCatForm && (
+							<div className="adm-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) cancelCatEdit(); }}>
+								<div className="adm-modal adm-modal-sm">
+									<div className="adm-modal-header">
+										<h2>{editingCatId ? "Kategoriyani tahrirlash" : "Yangi kategoriya"}</h2>
+										<button className="adm-modal-close" onClick={cancelCatEdit}>
+											<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+										</button>
+									</div>
+									<form className="adm-form" onSubmit={handleCatSubmit}>
+										<div className="adm-form-grid">
+											<div className="adm-field">
+												<label>Nomi</label>
+												<input type="text" placeholder="Masalan: Klapanlar" value={catForm.name}
+													onChange={(e) => setCatForm((p) => ({ ...p, name: e.target.value }))} required />
+											</div>
+											<div className="adm-field">
+												<label>Slug</label>
+												<input type="text" placeholder="Masalan: klapanlar" value={catForm.slug}
+													onChange={(e) => setCatForm((p) => ({ ...p, slug: e.target.value }))} required />
+											</div>
 										</div>
-										<div className="product-actions">
-											<button className="btn-edit" onClick={() => startCatEdit(cat)}>✏</button>
-											<button className="btn-delete" onClick={() => handleCatDelete(cat.id)}>✕</button>
+										<div className="adm-field">
+											<label>Tartib raqami</label>
+											<input type="number" value={catForm.order} min={0}
+												onChange={(e) => setCatForm((p) => ({ ...p, order: Number(e.target.value) }))} />
+										</div>
+										<div className="adm-field">
+											<label>Banner rasmi</label>
+											<ImageUpload value={catForm.image}
+												onChange={(path) => { setCatForm((p) => ({ ...p, image: path })); setCatPreview(path); }}
+												onError={(msg) => setCatError(msg)} />
+										</div>
+										{catError && <div className="adm-error">{catError}</div>}
+										<div className="adm-form-actions">
+											<button type="button" className="adm-btn-cancel" onClick={cancelCatEdit}>Bekor qilish</button>
+											<button type="submit" className="adm-btn-save" disabled={catSubmitting}>
+												{catSubmitting ? "Saqlanmoqda..." : editingCatId ? "Yangilash" : "Qo'shish"}
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						)}
+
+						{catLoading ? (
+							<div className="adm-loading"><div className="adm-spinner" />Yuklanmoqda...</div>
+						) : categories.length === 0 ? (
+							<div className="adm-empty">
+								<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+								<p>Kategoriyalar yo'q</p>
+							</div>
+						) : (
+							<div className="adm-cat-grid">
+								{categories.map((cat) => (
+									<div key={cat.id} className={`adm-cat-card${editingCatId === cat.id ? " is-editing" : ""}`}>
+										{cat.image ? (
+											<img src={cat.image} alt={cat.name} className="adm-cat-img" />
+										) : (
+											<div className="adm-cat-img-ph">
+												<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+											</div>
+										)}
+										<div className="adm-cat-body">
+											<div className="adm-cat-name">{cat.name}</div>
+											<div className="adm-cat-meta">/{cat.slug} · #{cat.order}</div>
+										</div>
+										<div className="adm-cat-actions">
+											<button className="adm-action-btn edit" onClick={() => startCatEdit(cat)}>
+												<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+											</button>
+											<button className="adm-action-btn delete" onClick={() => handleCatDelete(cat.id)}>
+												<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+											</button>
 										</div>
 									</div>
 								))}
 							</div>
 						)}
-					</section>
-				</div>
-			)}
+					</>
+				)}
+			</main>
 		</div>
 	);
 }
