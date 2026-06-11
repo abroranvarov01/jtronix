@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { API_URL } from "@/lib/api";
+import { API_URL, imgUrl } from "@/lib/api";
 import { useT } from "@/lib/i18n";
 
 interface Category {
@@ -63,7 +63,7 @@ export default function CategoryBanner() {
           return (
             <Link key={cat.id} href={href} className="cat-banner-slide">
               {cat.image ? (
-                <img src={cat.image} alt={cat.name} className="cat-banner-img" />
+                <img src={imgUrl(cat.image)} alt={cat.name} className="cat-banner-img" />
               ) : (
                 <div className="cat-banner-placeholder">
                   <svg className="cat-banner-ph-icon" viewBox="0 0 80 80" fill="none">

@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
-import { API_URL } from "@/lib/api";
+import { API_URL, imgUrl } from "@/lib/api";
 import { useLang, useT } from "@/lib/i18n";
 import type { Lang } from "@/lib/i18n";
 
@@ -60,7 +60,7 @@ function ProductCard({ product, lang, orderLabel, onOrder }: {
 		<div className="pcard">
 			<div className="pcard-img-wrap">
 				{product.image ? (
-					<img src={product.image} alt={getName(product, lang)} className="pcard-img" />
+					<img src={imgUrl(product.image)} alt={getName(product, lang)} className="pcard-img" />
 				) : (
 					<div className="pcard-img-placeholder" />
 				)}

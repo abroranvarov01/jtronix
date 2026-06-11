@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { API_URL } from "@/lib/api";
+import { API_URL, imgUrl } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
 interface ImageUploadProps {
@@ -101,7 +101,7 @@ export default function ImageUpload({ value, onChange, onError }: ImageUploadPro
     if (inputRef.current) inputRef.current.value = "";
   }
 
-  const displayImage = localPreview || value;
+  const displayImage = localPreview || imgUrl(value);
   const isUploading = progress !== null;
 
   return (
