@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { API_URL } from '@/lib/api';
 import { useT } from '@/lib/i18n';
+import "./ApplicationForm.css";
 
 export const ApplicationForm: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
