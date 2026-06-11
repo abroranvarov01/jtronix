@@ -22,6 +22,7 @@ export default function CategoryBanner() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [current, setCurrent] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
   const t = useT();
 
   useEffect(() => {
@@ -62,8 +63,13 @@ export default function CategoryBanner() {
           const href = cat.slug ? `/products?type=${cat.slug}` : "/products";
           return (
             <Link key={cat.id} href={href} className="cat-banner-slide">
-              {cat.image ? (
-                <img src={imgUrl(cat.image)} alt={cat.name} className="cat-banner-img" />
+              {cat.image && !brokenImgs.has(cat.id) ? (
+                <img
+                  src={imgUrl(cat.image)}
+                  alt={cat.name}
+                  className="cat-banner-img"
+                  onError={() => setBrokenImgs((prev) => new Set(prev).add(cat.id))}
+                />
               ) : (
                 <div className="cat-banner-placeholder">
                   <svg className="cat-banner-ph-icon" viewBox="0 0 80 80" fill="none">
