@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation, Pagination, EffectFade } from "swiper/modules";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { API_URL, imgUrl } from "@/lib/api";
 import { useT } from "@/lib/i18n";
 
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import "swiper/css/effect-fade";
+import "./CategoryBanner.css";
 
 interface Category {
   id: string;
@@ -47,10 +47,8 @@ export default function CategoryBanner() {
   return (
     <section className="cat-banner">
       <Swiper
-        modules={[Autoplay, Navigation, Pagination, EffectFade]}
-        effect="fade"
+        modules={[Autoplay, Pagination]}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
-        navigation
         pagination={{ clickable: true }}
         loop={slides.length > 1}
         className="cat-swiper"

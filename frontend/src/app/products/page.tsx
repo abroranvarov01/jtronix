@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { API_URL, imgUrl } from "@/lib/api";
 import { useLang, useT } from "@/lib/i18n";
+import "./products.css";
 import type { Lang } from "@/lib/i18n";
 
 /* ========================= TYPES ========================= */

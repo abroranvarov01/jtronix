@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useT } from "@/lib/i18n";
 import LangSwitcher from "@/components/LangSwitcher";
+import "./Navbar.css";
 
 export function Navbar() {
 	const [isMenuOpen, setIsMenuOpen] = useState(false);

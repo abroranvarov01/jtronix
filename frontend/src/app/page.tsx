@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { ApplicationForm } from "@/components/ApplicationForm";
 import CategoryBanner from "@/components/CategoryBanner";
 import { useT } from "@/lib/i18n";
+import "./home.css";
 
 export default function Home() {
 	const t = useT();

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useLang, Lang } from "@/lib/i18n";
+import "./LangSwitcher.css";
 
 const LANGS: { code: Lang; flag: string; label: string }[] = [
   { code: "uz", flag: "🇺🇿", label: "UZ" },
